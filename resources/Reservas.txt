@@ -1,0 +1,10 @@
+Manuel Jesus;5;1
+Maria José;2;1
+Alberto Silva;7;1
+Beatriz Ribeiro;4;2
+Ana Fonseca;2;4
+Paulo Andrade;5;6
+Ulisses;2;6
+David Oliveira;7;10
+Liliana Castro;2;15
+Rita Barros;2;18

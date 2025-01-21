@@ -1,0 +1,18 @@
+19/12/2024 18:10
+
+Classe ConfiguracaoDAL:
+
+Método lerUnidadeTempo: Lê o valor do ficheiro UnidadeTempo.txt e define no objeto Configuracao. Se o valor não for um número inteiro válido, define unidadesTempoDia como 0.
+Método alterarUnidadeTempo: Escreve um novo valor inteiro no ficheiro UnidadeTempo.txt. Cria o diretório resources se não existir.
+Classe ConfiguracaoController:
+
+Construtor: Inicializa ConfiguracaoDAL e Configuracao, e chama carregarUnidadeTempo.
+Método carregarUnidadeTempo: Chama lerUnidadeTempo e verifica se unidadesTempoDia é 0. Se for, chama solicitarNovaUnidadeTempo.
+Método alterarUnidadeTempo: Converte a string para inteiro e chama alterarUnidadeTempo de ConfiguracaoDAL.
+Método solicitarNovaUnidadeTempo: Solicita ao usuário um novo valor até que um número inteiro válido seja fornecido.
+Classe MenuPrincipalView:
+
+Construtor: Inicializa ConfiguracaoController e chama verificarUnidadeTempo.
+Método verificarUnidadeTempo: Verifica se unidadesTempoDia é 0 e, se for, chama solicitarNovaUnidadeTempo.
+Método solicitarNovaUnidadeTempo: Solicita ao usuário um novo valor até que um número inteiro válido seja fornecido.
+Método exibirMenu: Exibe o menu principal e chama os métodos apropriados com base na opção selecionada.

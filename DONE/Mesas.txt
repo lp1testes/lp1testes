@@ -1,0 +1,22 @@
+19/12/2024 18:52
+
+Classe MesaDAL
+Responsável por carregar e salvar mesas no ficheiro Mesas.txt.
+Métodos principais:
+carregarMesas(): Carrega as mesas do ficheiro Mesas.txt e retorna um array de mesas.
+salvarMesas(Mesa[] mesas): Salva as mesas no ficheiro Mesas.txt.
+obterProximoId(Mesa[] mesas): Obtém o próximo ID disponível, garantindo que seja o menor número inteiro positivo que não esteja sendo usado.
+
+3. Classe MesaController
+Gerencia a lógica de negócios relacionada às mesas.
+Métodos principais:
+getMesas(): Retorna o array de mesas.
+adicionarMesa(Mesa novaMesa): Adiciona uma nova mesa, atribuindo automaticamente o próximo ID disponível.
+
+4. Classe GerirMesasView
+Interface de usuário para a gestão de mesas.
+Métodos principais:
+exibirMenuGestaoMesas(Scanner scanner): Exibe o menu de gestão de mesas e chama os métodos apropriados com base na opção selecionada.
+registarMesas(Scanner scanner): Solicita ao usuário que insira a capacidade da mesa e registra a mesa. Se o usuário inserir "000", a adição da mesa é cancelada.
+verificarEstadoMesas(): Exibe o estado de todas as mesas registradas, incluindo o ID (nome), a capacidade e se estão ocupadas ou não. As mesas são ordenadas pelos IDs antes de serem exibidas.
+atribuirClientesMesas(): (A ser implementado) Lógica para atribuir clientes às mesas.
