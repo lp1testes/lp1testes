@@ -7,6 +7,9 @@ public class SimulacaoDia {
     private boolean isAtivo;
 
     public SimulacaoDia() {
+        this.dia = 0; // Inicializar com um valor padrão
+        this.unidadeTempoAtual = 0; // Inicializar com um valor padrão
+        this.isAtivo = false;
     }
 
     public SimulacaoDia(Integer dia, Integer unidadeTempoAtual, boolean isAtivo) {

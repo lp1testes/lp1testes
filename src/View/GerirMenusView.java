@@ -1,18 +1,23 @@
 package View;
 
+import Controller.LogsController;
 import Controller.MenuController;
 import Controller.PratoController;
+import Controller.SimulacaoDiaController;
 import Model.Prato;
 import java.util.Scanner;
 
 public class GerirMenusView {
-
     private PratoController pratoController;
     private MenuController menuController;
+    private LogsController logsController;
+    private SimulacaoDiaController simulacaoDiaController;
 
     public GerirMenusView() {
         pratoController = new PratoController();
         menuController = new MenuController();
+        logsController = new LogsController();
+        simulacaoDiaController = SimulacaoDiaController.getInstance();
     }
 
     public void exibirMenuGestaoMenus(Scanner scanner) {
@@ -86,6 +91,20 @@ public class GerirMenusView {
 
         Prato novoPrato = new Prato(null, nome, categoria, precoCusto, precoVenda, tempoPreparacao, disponivel);
         pratoController.adicionarPrato(novoPrato);
+
+        // Obter o dia atual e a unidade de tempo atual da simulação
+        int currentDay = simulacaoDiaController.getDiaAtualLogs();
+        int currentHour = simulacaoDiaController.getUnidadeTempoAtualLogs();
+
+        System.out.println("Dia Atual: " + currentDay);
+        System.out.println("Unidade de Tempo Atual: " + currentHour);
+
+        // Criação do log
+        String logType = "ACTION";
+        String logDescription = String.format("Prato criado: %s, Categoria: %s, Custo: %.2f, Venda: %.2f, Tempo: %d, Disponível: %b",
+                nome, categoria, precoCusto, precoVenda, tempoPreparacao, disponivel);
+
+        logsController.criarLog(currentDay, currentHour, logType, logDescription);
 
         System.out.println("Prato criado com sucesso!");
     }

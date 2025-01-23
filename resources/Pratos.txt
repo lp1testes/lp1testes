@@ -2,3 +2,11 @@
 2;Bacalhau;prato principal;20.0;25.0;3;true
 3;Natas do ceu;sobremesa;4.0;7.0;1;true
 4;Bife;prato principal;12.0;15.0;3;true
+5;pratoaa;entrada;35.0;40.0;9;true
+6;aa;sobremesa;150.0;200.0;9;true
+7;pratobb;sobremesa;40.0;50.0;9;true
+8;aa;sobremesa;30.0;30.0;5;true
+9;aa;sobremesa;30.0;40.0;9;true
+10;bsf;entrada;30.0;40.0;5;true
+11;aa;sobremesa;30.0;40.0;9;false
+12;oo;entrada;9.0;11.0;9;true
