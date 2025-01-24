@@ -1,9 +1,6 @@
 package View;
 
-import Controller.ConfiguracaoController;
-import Controller.MesaController;
-import Controller.ReservaController;
-import Controller.SimulacaoDiaController;
+import Controller.*;
 import Model.Configuracao;
 
 import java.util.Scanner;
@@ -14,6 +11,8 @@ public class MenuPrincipalView {
     private final ConfiguracaoController configuracaoController;
     private final MesaController mesaController;
     private final ReservaController reservaController;
+    private final PratoController pratoController;
+    private final MenuController menuController;
 
     public MenuPrincipalView() {
         this.scanner = new Scanner(System.in);
@@ -21,8 +20,9 @@ public class MenuPrincipalView {
         this.simulacaoDiaController = SimulacaoDiaController.getInstance();
         this.reservaController = new ReservaController(configuracaoController.getConfiguracao());
         this.mesaController = new MesaController(configuracaoController.getConfiguracao(), reservaController);
+        this.pratoController = new PratoController();
+        this.menuController = new MenuController();
 
-        // Configurar a dependência circular após a inicialização
         simulacaoDiaController.setReservaController(reservaController);
 
         verificarUnidadeTempo();
@@ -54,7 +54,7 @@ public class MenuPrincipalView {
 
         GerirMesasView gerirMesasView = new GerirMesasView(mesaController, reservaController, simulacaoDiaController, configuracaoController);
         GerirMenusView gerirMenusView = new GerirMenusView();
-        RegistarPedidosView registarPedidosView = new RegistarPedidosView();
+        RegistarPedidosView registarPedidosView = new RegistarPedidosView(mesaController, reservaController, simulacaoDiaController, configuracaoController, pratoController, menuController);
         ReservasView reservasView = new ReservasView(reservaController);
         ConfiguracoesView configuracoesView = new ConfiguracoesView();
         EstatisticasView estatisticasView = new EstatisticasView();

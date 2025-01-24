@@ -149,4 +149,14 @@ public class MenuController {
             }
         }
     }
+
+    public Menu getMenuById(int id) {
+        Menu[] menus = obterTodosMenus();
+        for (Menu menu : menus) {
+            if (menu != null && menu.getId() == id) {
+                return menu;
+            }
+        }
+        return null;
+    }
 }
