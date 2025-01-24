@@ -6,11 +6,10 @@ public class SimulacaoDiaController {
     private static SimulacaoDiaController instance;
     private final SimulacaoDia simulacaoDia;
     private final ConfiguracaoController configuracaoController;
-    private final ReservaController reservaController;
+    private ReservaController reservaController;
 
     private SimulacaoDiaController() {
         this.configuracaoController = ConfiguracaoController.getInstancia();
-        this.reservaController = new ReservaController(configuracaoController.getConfiguracao());
         this.simulacaoDia = new SimulacaoDia();
     }
 
@@ -21,12 +20,16 @@ public class SimulacaoDiaController {
         return instance;
     }
 
-    public int getDiaAtualLogs() {
-        return simulacaoDia.getDia() != null ? simulacaoDia.getDia() : 1; // Retornar 1 se for null
+    public void setReservaController(ReservaController reservaController) {
+        this.reservaController = reservaController;
     }
 
-    public int getUnidadeTempoAtualLogs() {
-        return simulacaoDia.getUnidadeTempoAtual() != null ? simulacaoDia.getUnidadeTempoAtual() : 0; // Retornar 0 se for null
+    public int getDiaAtual() {
+        return simulacaoDia.getDia() != null ? simulacaoDia.getDia() : 1;
+    }
+
+    public int getUnidadeTempoAtual() {
+        return simulacaoDia.getUnidadeTempoAtual() != null ? simulacaoDia.getUnidadeTempoAtual() : 0;
     }
 
     public String iniciarNovoDia() {
@@ -68,7 +71,9 @@ public class SimulacaoDiaController {
     public String obterNotificacoes() {
         int tempoAtual = simulacaoDia.getUnidadeTempoAtual();
         StringBuilder notificacoes = new StringBuilder();
-        notificacoes.append(reservaController.verificarChegadaReservas(tempoAtual));
+        if (reservaController != null) {
+            notificacoes.append(reservaController.verificarChegadaReservas(tempoAtual));
+        }
         return notificacoes.toString();
     }
 }

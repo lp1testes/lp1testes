@@ -93,8 +93,8 @@ public class GerirMenusView {
         pratoController.adicionarPrato(novoPrato);
 
         // Obter o dia atual e a unidade de tempo atual da simulação
-        int currentDay = simulacaoDiaController.getDiaAtualLogs();
-        int currentHour = simulacaoDiaController.getUnidadeTempoAtualLogs();
+        int currentDay = simulacaoDiaController.getDiaAtual();
+        int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
 
         System.out.println("Dia Atual: " + currentDay);
         System.out.println("Unidade de Tempo Atual: " + currentHour);

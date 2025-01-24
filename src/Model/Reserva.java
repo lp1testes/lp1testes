@@ -1,27 +1,27 @@
 package Model;
 
 public class Reserva {
-
-    private Integer id;
+    private int id;
     private String nome;
     private int numeroPessoas;
     private int tempoChegada;
+    private boolean associada;
 
-    public Reserva() {
-    }
-
-    public Reserva(Integer id, String nome, int numeroPessoas,  int tempoChegada) {
+    public Reserva(int id, String nome, int numeroPessoas, int tempoChegada) {
         this.id = id;
         this.nome = nome;
         this.numeroPessoas = numeroPessoas;
         this.tempoChegada = tempoChegada;
+        this.associada = false; // Inicialmente, a reserva não está associada
     }
 
-    public Integer getId() {
+    // Getters e Setters
+
+    public int getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -47,5 +47,13 @@ public class Reserva {
 
     public void setTempoChegada(int tempoChegada) {
         this.tempoChegada = tempoChegada;
+    }
+
+    public boolean isAssociada() {
+        return associada;
+    }
+
+    public void setAssociada(boolean associada) {
+        this.associada = associada;
     }
 }

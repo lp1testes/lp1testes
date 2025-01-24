@@ -2,7 +2,6 @@ package Controller;
 
 import DAL.ReservaDAL;
 import Model.Configuracao;
-import Model.Mesa;
 import Model.Reserva;
 
 import java.util.Arrays;
@@ -12,10 +11,16 @@ public class ReservaController {
 
     private Reserva[] reservas;
     private ReservaDAL reservaDAL;
+    private Configuracao configuracao;
+    private MesaController mesaController;
+    private ConfiguracaoController configuracaoController;
 
     public ReservaController(Configuracao configuracao) {
+        this.configuracao = configuracao;
         reservaDAL = new ReservaDAL(configuracao);
         reservas = reservaDAL.carregarReservas();
+        mesaController = new MesaController(configuracao, this);
+        configuracaoController = ConfiguracaoController.getInstancia();
     }
 
     public Reserva[] getReservas() {
@@ -67,5 +72,36 @@ public class ReservaController {
             }
         }
         return notificacoes.toString();
+    }
+
+    public void verificarReservas(int tempoAtual) {
+        for (Reserva reserva : reservas) {
+            if (reserva != null && tempoAtual >= reserva.getTempoChegada() && tempoAtual <= reserva.getTempoChegada() + configuracao.getUnidadesTempoIrParaMesa()) {
+                System.out.println("Reserva " + reserva.getNome() + " está dentro do tempo permitido para ser associada a uma mesa.");
+                mesaController.atribuirClientesAMesa(reserva.getId(), reserva, tempoAtual); // Atualizando para passar o tempoAtual
+            } else if (reserva != null && tempoAtual > reserva.getTempoChegada() + configuracao.getUnidadesTempoIrParaMesa()) {
+                System.out.println("Reserva " + reserva.getNome() + " passou do tempo permitido e foi embora.");
+            }
+        }
+    }
+
+    public Reserva getReservaById(int id) {
+        for (Reserva reserva : reservas) {
+            if (reserva != null && reserva.getId() == id) {
+                return reserva;
+            }
+        }
+        return null;
+    }
+
+    public Reserva[] listarReservasDisponiveis(int tempoAtual) {
+        Reserva[] reservasDisponiveis = new Reserva[reservas.length];
+        int index = 0;
+        for (Reserva reserva : reservas) {
+            if (reserva != null && !reserva.isAssociada() && reserva.getTempoChegada() <= tempoAtual && tempoAtual <= reserva.getTempoChegada() + configuracaoController.getConfiguracao().getUnidadesTempoIrParaMesa()) {
+                reservasDisponiveis[index++] = reserva;
+            }
+        }
+        return Arrays.copyOf(reservasDisponiveis, index);
     }
 }

@@ -18,9 +18,12 @@ public class MenuPrincipalView {
     public MenuPrincipalView() {
         this.scanner = new Scanner(System.in);
         this.configuracaoController = ConfiguracaoController.getInstancia();
-        this.reservaController = new ReservaController(configuracaoController.getConfiguracao());
         this.simulacaoDiaController = SimulacaoDiaController.getInstance();
-        this.mesaController = new MesaController(configuracaoController.getConfiguracao());
+        this.reservaController = new ReservaController(configuracaoController.getConfiguracao());
+        this.mesaController = new MesaController(configuracaoController.getConfiguracao(), reservaController);
+
+        // Configurar a dependência circular após a inicialização
+        simulacaoDiaController.setReservaController(reservaController);
 
         verificarUnidadeTempo();
     }
@@ -49,7 +52,7 @@ public class MenuPrincipalView {
     public void exibirMenu() {
         int opcao;
 
-        GerirMesasView gerirMesasView = new GerirMesasView(mesaController);
+        GerirMesasView gerirMesasView = new GerirMesasView(mesaController, reservaController, simulacaoDiaController, configuracaoController);
         GerirMenusView gerirMenusView = new GerirMenusView();
         RegistarPedidosView registarPedidosView = new RegistarPedidosView();
         ReservasView reservasView = new ReservasView(reservaController);

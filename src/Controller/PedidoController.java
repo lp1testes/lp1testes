@@ -10,7 +10,6 @@ public class PedidoController {
 
     public PedidoController() {
         pedido = new Pedido();
-        //pedido = pedidoDAL.carregarPedidos();
     }
 
     public Pedido getPedido() {
@@ -19,6 +18,7 @@ public class PedidoController {
 
     public void atualizarPedido(Pedido novoPedido) {
         pedido = novoPedido;
-        //pedidoDAL.salvarPedidos(pedido);
     }
+
+
 }

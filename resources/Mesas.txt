@@ -1,5 +1,5 @@
-1;9;false
-2;100;false
+1;10;true
+2;27;true
 3;19;false
 4;1;false
 5;25;false

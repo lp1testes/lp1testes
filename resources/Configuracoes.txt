@@ -1,2 +1,2 @@
-Resources/;10;10;1;1;2.0;Teste
+Resources/;10;1;1;1;2.0;Teste
 ;
