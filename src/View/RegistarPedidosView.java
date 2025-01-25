@@ -11,6 +11,7 @@ import Model.Mesa;
 import Model.Prato;
 import Model.Menu;
 
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class RegistarPedidosView {
@@ -88,8 +89,16 @@ public class RegistarPedidosView {
             }
         }
 
-        System.out.print("\nID da mesa para registrar o pedido: ");
-        int idMesa = scanner.nextInt();
+        int idMesa = -1;
+        while (idMesa == -1) {
+            System.out.print("\nID da mesa para registrar o pedido: ");
+            try {
+                idMesa = scanner.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.println("Entrada inválida! Por favor, insira um número inteiro.");
+                scanner.nextLine(); // Limpar o buffer
+            }
+        }
         scanner.nextLine(); // Limpar o buffer
 
         Reserva reserva = mesaController.getClienteDaMesa(idMesa);
@@ -100,6 +109,11 @@ public class RegistarPedidosView {
 
         int tempoAssociacao = reserva.getTempoChegada();
         int tempoLimite = tempoAssociacao + unidadesTempoParaPedido;
+
+        if (tempoAtual < tempoAssociacao + 1) {
+            System.out.println("O cliente terá que esperar uma unidade de tempo para fazer o pedido.");
+            return; // Retorna sem marcar a reserva como atendida
+        }
 
         if (tempoAtual > tempoLimite) {
             System.out.println("Tempo limite para registrar o pedido expirou. Clientes da reserva " + reserva.getNome() + " foram embora.");
@@ -123,8 +137,14 @@ public class RegistarPedidosView {
             System.out.println("2. Menu");
             System.out.print("Escolha uma opção: ");
 
-            opcao = scanner.nextInt();
-            scanner.nextLine(); // Limpar o buffer
+            try {
+                opcao = scanner.nextInt();
+                scanner.nextLine(); // Limpar o buffer
+            } catch (InputMismatchException e) {
+                System.out.println("Entrada inválida! Por favor, insira um número inteiro.");
+                scanner.nextLine(); // Limpar o buffer
+                opcao = -1;
+            }
 
             switch (opcao) {
                 case 1:
@@ -153,9 +173,17 @@ public class RegistarPedidosView {
             }
         }
 
-        System.out.print("Escolha o ID do prato: ");
-        int idPrato = scanner.nextInt();
-        scanner.nextLine(); // Limpar o buffer
+        int idPrato = -1;
+        while (idPrato == -1) {
+            System.out.print("Escolha o ID do prato: ");
+            try {
+                idPrato = scanner.nextInt();
+                scanner.nextLine(); // Limpar o buffer
+            } catch (InputMismatchException e) {
+                System.out.println("Entrada inválida! Por favor, insira um número inteiro.");
+                scanner.nextLine(); // Limpar o buffer
+            }
+        }
 
         Prato pratoSelecionado = pratoController.getPratoById(idPrato);
         if (pratoSelecionado != null && pratoSelecionado.isDisponivel()) {
@@ -185,9 +213,17 @@ public class RegistarPedidosView {
             }
         }
 
-        System.out.print("Escolha o ID do menu: ");
-        int idMenu = scanner.nextInt();
-        scanner.nextLine(); // Limpar o buffer
+        int idMenu = -1;
+        while (idMenu == -1) {
+            System.out.print("Escolha o ID do menu: ");
+            try {
+                idMenu = scanner.nextInt();
+                scanner.nextLine(); // Limpar o buffer
+            } catch (InputMismatchException e) {
+                System.out.println("Entrada inválida! Por favor, insira um número inteiro.");
+                scanner.nextLine(); // Limpar o buffer
+            }
+        }
 
         Menu menuSelecionado = menuController.getMenuById(idMenu);
         if (menuSelecionado != null) {
@@ -199,9 +235,17 @@ public class RegistarPedidosView {
     }
 
     private void listarPedidosAtendidos(Scanner scanner) {
-        System.out.print("Digite o ID da mesa para listar os pedidos atendidos: ");
-        int idMesa = scanner.nextInt();
-        scanner.nextLine(); // Limpar o buffer
+        int idMesa = -1;
+        while (idMesa == -1) {
+            System.out.print("Digite o ID da mesa para listar os pedidos atendidos: ");
+            try {
+                idMesa = scanner.nextInt();
+                scanner.nextLine(); // Limpar o buffer
+            } catch (InputMismatchException e) {
+                System.out.println("Entrada inválida! Por favor, insira um número inteiro.");
+                scanner.nextLine();
+            }
+        }
 
         mesaController.listarPedidosAtendidos(idMesa);
     }

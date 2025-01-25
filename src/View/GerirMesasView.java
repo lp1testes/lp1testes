@@ -1,15 +1,13 @@
 package View;
 
-import Controller.MesaController;
-import Controller.ReservaController;
-import Controller.SimulacaoDiaController;
-import Controller.ConfiguracaoController;
+import Controller.*;
 import Model.Configuracao;
 import Model.Reserva;
 import Model.Mesa;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class GerirMesasView {
@@ -133,6 +131,9 @@ public class GerirMesasView {
         verificarEstadoMesas();
 
         int tempoAtual = simulacaoDiaController.getUnidadeTempoAtual();
+        int currentDay = simulacaoDiaController.getDiaAtual(); // Supondo que você tenha esse método
+        int unitsForAssignment = configuracaoController.getConfiguracao().getUnidadesTempoIrParaMesa();
+
         Reserva[] reservasDisponiveis = reservaController.listarReservasDisponiveis(tempoAtual);
 
         if (reservasDisponiveis.length == 0) {
@@ -147,19 +148,41 @@ public class GerirMesasView {
             }
         }
 
-        System.out.print("\nID da mesa a atribuir clientes: ");
-        int idMesa = scanner.nextInt();
-        System.out.print("ID da reserva: ");
-        int idReserva = scanner.nextInt();
+        int idMesa = -1;
+        while (idMesa == -1) {
+            System.out.print("\nID da mesa a atribuir clientes: ");
+            try {
+                idMesa = scanner.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.println("Entrada inválida! Por favor, insira um número inteiro.");
+                scanner.nextLine(); // Limpar o buffer
+            }
+        }
+
+        int idReserva = -1;
+        while (idReserva == -1) {
+            System.out.print("ID da reserva: ");
+            try {
+                idReserva = scanner.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.println("Entrada inválida! Por favor, insira um número inteiro.");
+                scanner.nextLine(); // Limpar o buffer
+            }
+        }
         scanner.nextLine(); // Limpar o buffer
 
         Reserva reserva = reservaController.getReservaById(idReserva);
         if (reserva != null) {
             int tempoChegada = reserva.getTempoChegada();
-            int tempoLimite = tempoChegada + configuracaoController.getConfiguracao().getUnidadesTempoIrParaMesa();
+            int tempoLimite = tempoChegada + unitsForAssignment;
 
             if (tempoAtual <= tempoLimite) {
                 mesaController.atribuirClientesAMesa(idMesa, reserva, tempoAtual);
+                LogsController logsController = new LogsController();
+                String logType = "ACTION";
+                String logDescription = String.format("Clientes da reserva %s (ID: %d) foram atribuídos à mesa %d. Número de Pessoas: %d, Tempo de Chegada: %d",
+                        reserva.getNome(), reserva.getId(), idMesa, reserva.getNumeroPessoas(), reserva.getTempoChegada());
+                logsController.criarLog(currentDay, tempoAtual, logType, logDescription);
             } else {
                 System.out.println("Tempo limite para atribuição da reserva " + reserva.getNome() + " expirou.");
             }
@@ -169,8 +192,16 @@ public class GerirMesasView {
     }
 
     private void verClienteDaMesa(Scanner scanner) {
-        System.out.print("\nID da mesa para ver o cliente: ");
-        int idMesa = scanner.nextInt();
+        int idMesa = -1;
+        while (idMesa == -1) {
+            System.out.print("\nID da mesa para ver o cliente: ");
+            try {
+                idMesa = scanner.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.println("Entrada inválida! Por favor, insira um número inteiro.");
+                scanner.nextLine(); // Limpar o buffer
+            }
+        }
         scanner.nextLine(); // Limpar o buffer
 
         Reserva reserva = mesaController.getClienteDaMesa(idMesa);
@@ -184,16 +215,40 @@ public class GerirMesasView {
     private void editarMesa(Scanner scanner) {
         verificarEstadoMesas();
 
-        System.out.print("\nID da mesa a editar: ");
-        int id = scanner.nextInt();
+        int id = -1;
+        while (id == -1) {
+            System.out.print("\nID da mesa a editar: ");
+            try {
+                id = scanner.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.println("Entrada inválida! Por favor, insira um número inteiro.");
+                scanner.nextLine(); // Limpar o buffer
+            }
+        }
         scanner.nextLine();
 
-        System.out.print("Nova capacidade da mesa: ");
-        int novaCapacidade = scanner.nextInt();
+        int novaCapacidade = -1;
+        while (novaCapacidade == -1) {
+            System.out.print("Nova capacidade da mesa: ");
+            try {
+                novaCapacidade = scanner.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.println("Entrada inválida! Por favor, insira um número inteiro.");
+                scanner.nextLine(); // Limpar o buffer
+            }
+        }
         scanner.nextLine();
 
-        System.out.print("A mesa está ocupada? (true/false): ");
-        boolean novaOcupacao = scanner.nextBoolean();
+        Boolean novaOcupacao = null;
+        while (novaOcupacao == null) {
+            System.out.print("A mesa está ocupada? (true/false): ");
+            try {
+                novaOcupacao = scanner.nextBoolean();
+            } catch (InputMismatchException e) {
+                System.out.println("Entrada inválida! Por favor, insira 'true' ou 'false'.");
+                scanner.nextLine(); // Limpar o buffer
+            }
+        }
         scanner.nextLine();
 
         mesaController.editarMesa(id, novaCapacidade, novaOcupacao);
@@ -203,8 +258,16 @@ public class GerirMesasView {
     private void removerMesa(Scanner scanner) {
         verificarEstadoMesas();
 
-        System.out.print("\nID da mesa a remover: ");
-        int id = scanner.nextInt();
+        int id = -1;
+        while (id == -1) {
+            System.out.print("\nID da mesa a remover: ");
+            try {
+                id = scanner.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.println("Entrada inválida! Por favor, insira um número inteiro.");
+                scanner.nextLine(); // Limpar o buffer
+            }
+        }
         scanner.nextLine();
 
         mesaController.removerMesa(id);

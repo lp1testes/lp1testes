@@ -173,8 +173,15 @@ public class MesaController {
             return;
         }
 
-        Configuracao configuracao = ConfiguracaoController.getInstancia().getConfiguracao();
         int tempoAssociacao = mesaReserva.getTempoAssociacao();
+
+        // Verificar se o cliente pode fazer o pedido
+        if (tempoAtual < tempoAssociacao + 1) {
+            System.out.println("O cliente terá que esperar uma unidade de tempo para fazer o pedido.");
+            return; // Adicione o return aqui para garantir que o pedido não seja registrado
+        }
+
+        Configuracao configuracao = ConfiguracaoController.getInstancia().getConfiguracao();
         int tempoLimite = tempoAssociacao + configuracao.getUnidadesTempoParaPedido();
 
         if (tempoAtual > tempoLimite) {
@@ -183,7 +190,9 @@ public class MesaController {
             return;
         }
 
+        // Mover esta mensagem para depois da verificação
         System.out.println("Clientes da reserva " + mesaReserva.getIdReserva() + " estão prontos para fazer o pedido.");
+
         Pedido pedido = getPedidoByMesa(idMesa);
         if (pedido == null) {
             pedido = new Pedido();
@@ -202,7 +211,13 @@ public class MesaController {
                 i--; // Pergunta novamente ao mesmo cliente
             }
         }
+
+        // Mostrar os totais após registrar o pedido
+        System.out.printf("Total Custo: %.2f\n", pedido.getTotalCusto());
+        System.out.printf("Total Venda: %.2f\n", pedido.getTotalVenda());
+        System.out.printf("Lucro: %.2f\n", pedido.getLucro());
     }
+
 
     private void listarPratos(Scanner scanner, int idMesa, Pedido pedido) {
         PratoController pratoController = new PratoController();
@@ -328,5 +343,9 @@ public class MesaController {
             }
             clienteCount++;
         }
-    }
-}
+
+        // Mostrar os totais
+        System.out.printf("Total Custo: %.2f\n", pedido.getTotalCusto());
+        System.out.printf("Total Venda: %.2f\n", pedido.getTotalVenda());
+        System.out.printf("Lucro: %.2f\n", pedido.getLucro());
+    }  }
