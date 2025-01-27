@@ -6,10 +6,7 @@ import Controller.SimulacaoDiaController;
 import Controller.ConfiguracaoController;
 import Controller.PratoController;
 import Controller.MenuController;
-import Model.Reserva;
-import Model.Mesa;
-import Model.Prato;
-import Model.Menu;
+import Model.*;
 
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -41,11 +38,12 @@ public class RegistarPedidosView {
             System.out.println("2. Calcular Total de um Pedido");
             System.out.println("3. Gerir Pedidos");
             System.out.println("4. Listar Pedidos Atendidos de uma Mesa");
+            System.out.println("5. Efetuar Pagamento");
             System.out.println("0. Voltar ao Menu Principal");
             System.out.print("Escolha uma opção: ");
 
             MenuPrincipalView menuPrincipalView = new MenuPrincipalView();
-            opcao = menuPrincipalView.obterOpcaoValida(0, 4);
+            opcao = menuPrincipalView.obterOpcaoValida(0, 5);
 
             switch (opcao) {
                 case 1:
@@ -60,6 +58,9 @@ public class RegistarPedidosView {
                 case 4:
                     listarPedidosAtendidos(scanner);
                     break;
+                case 5:
+                    efetuarPagamentoView(scanner);
+                    break;
                 case 0:
                     System.out.println("Voltando ao menu principal...");
                     break;
@@ -67,7 +68,34 @@ public class RegistarPedidosView {
                     System.out.println("Opção inválida! Tente novamente.");
             }
         } while (opcao != 0);
+    }
 
+    private void efetuarPagamentoView(Scanner scanner) {
+        System.out.print("Digite o ID da mesa para efetuar o pagamento: ");
+        int idMesa = -1;
+        try {
+            idMesa = scanner.nextInt();
+            scanner.nextLine(); // Limpar o buffer
+        } catch (InputMismatchException e) {
+            System.out.println("Entrada inválida! Por favor, insira um número inteiro.");
+            scanner.nextLine(); // Limpar o buffer
+            return;
+        }
+
+        int tempoAtual = simulacaoDiaController.getUnidadeTempoAtual();
+        Pedido pedido = mesaController.getPedidoByMesa(idMesa);
+
+        if (pedido == null) {
+            System.out.println("Pedido não encontrado para a mesa " + idMesa);
+            return;
+        }
+
+        if (tempoAtual < pedido.getTempoPedido() + 1) {
+            System.out.println("O pagamento só pode ser efetuado 1 unidade de tempo após o pedido.");
+            return;
+        }
+
+        mesaController.efetuarPagamento(idMesa);
     }
 
     private void associarPedido(Scanner scanner) {

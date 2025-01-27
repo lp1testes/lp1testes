@@ -11,6 +11,8 @@ public class Pedido {
     private double totalCusto;
     private double totalVenda;
     private double lucro;
+    private boolean pago;
+    private int tempoPedido;
 
     public Pedido() {
         this.pratos = new ArrayList<>();
@@ -18,6 +20,8 @@ public class Pedido {
         this.totalCusto = 0.0;
         this.totalVenda = 0.0;
         this.lucro = 0.0;
+        this.pago = false; // Inicialmente o pedido não está pago
+        this.tempoPedido = -1; // Inicializa com um valor inválido
     }
 
     public Mesa getMesa() {
@@ -30,6 +34,13 @@ public class Pedido {
 
     public List<Prato> getPratos() {
         return pratos;
+    }
+    public int getTempoPedido() {
+        return tempoPedido;
+    }
+
+    public void setTempoPedido(int tempoPedido) {
+        this.tempoPedido = tempoPedido;
     }
 
     public List<Menu> getMenus() {
@@ -46,6 +57,14 @@ public class Pedido {
 
     public double getLucro() {
         return lucro;
+    }
+
+    public boolean isPago() {
+        return pago;
+    }
+
+    public void setPago(boolean pago) {
+        this.pago = pago;
     }
 
     public void adicionarPrato(Prato prato) {

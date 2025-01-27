@@ -127,7 +127,7 @@ public class GerirMesasView {
         }
     }
 
-    private void atribuirClientesMesas(Scanner scanner) {
+    public void atribuirClientesMesas(Scanner scanner) {
         verificarEstadoMesas();
 
         int tempoAtual = simulacaoDiaController.getUnidadeTempoAtual();

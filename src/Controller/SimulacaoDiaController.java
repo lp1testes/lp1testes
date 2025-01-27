@@ -76,4 +76,8 @@ public class SimulacaoDiaController {
         }
         return notificacoes.toString();
     }
+
+    public boolean diaJaComecou() {
+        return simulacaoDia.getDia() > 0;
+    }
 }

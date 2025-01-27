@@ -197,6 +197,7 @@ public class MesaController {
         if (pedido == null) {
             pedido = new Pedido();
             pedido.setMesa(getMesaById(idMesa));
+            pedido.setTempoPedido(tempoAtual); // Armazenar o tempo do pedido
             pedidos.add(pedido);
         }
         for (int i = 0; i < reservaController.getReservaById(mesaReserva.getIdReserva()).getNumeroPessoas(); i++) {
@@ -217,8 +218,6 @@ public class MesaController {
         System.out.printf("Total Venda: %.2f\n", pedido.getTotalVenda());
         System.out.printf("Lucro: %.2f\n", pedido.getLucro());
     }
-
-
     private void listarPratos(Scanner scanner, int idMesa, Pedido pedido) {
         PratoController pratoController = new PratoController();
         Prato[] pratos = pratoController.getPratos();
@@ -300,7 +299,7 @@ public class MesaController {
         pedido.adicionarMenu(menu);
     }
 
-    private Pedido getPedidoByMesa(int idMesa) {
+    public Pedido getPedidoByMesa(int idMesa) {
         for (Pedido pedido : pedidos) {
             if (pedido.getMesa().getId() == idMesa) {
                 return pedido;
@@ -348,4 +347,18 @@ public class MesaController {
         System.out.printf("Total Custo: %.2f\n", pedido.getTotalCusto());
         System.out.printf("Total Venda: %.2f\n", pedido.getTotalVenda());
         System.out.printf("Lucro: %.2f\n", pedido.getLucro());
-    }  }
+        System.out.println("Estado do pedido: " + (pedido.isPago() ? "Pago" : "Não Pago"));
+    }
+    public void efetuarPagamento(int idMesa) {
+        Pedido pedido = getPedidoByMesa(idMesa);
+        if (pedido == null) {
+            System.out.println("Pedido não encontrado para a mesa " + idMesa);
+            return;
+        }
+        if (pedido.isPago()) {
+            System.out.println("O pedido já foi pago.");
+            return;
+        }
+        pedido.setPago(true);
+        System.out.println("Pagamento efetuado com sucesso para a mesa " + idMesa);
+    }}

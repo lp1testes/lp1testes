@@ -41,6 +41,10 @@ public class ConfiguracaoController {
         return configuracao;
     }
 
+    public int getUnidadesTempoDia() {
+        return configuracao.getUnidadesTempoDia();
+    }
+
     public void atualizarConfiguracao(Configuracao novaConfiguracao) {
         if (isDiaEmAndamento()) {
             System.err.println("Não é possível alterar a configuração enquanto um dia está em andamento.");

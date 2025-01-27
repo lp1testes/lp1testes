@@ -55,7 +55,7 @@ public class MenuPrincipalView {
         GerirMesasView gerirMesasView = new GerirMesasView(mesaController, reservaController, simulacaoDiaController, configuracaoController);
         GerirMenusView gerirMenusView = new GerirMenusView();
         RegistarPedidosView registarPedidosView = new RegistarPedidosView(mesaController, reservaController, simulacaoDiaController, configuracaoController, pratoController, menuController);
-        ReservasView reservasView = new ReservasView(reservaController);
+        ReservasView reservasView = new ReservasView(reservaController, gerirMesasView, simulacaoDiaController); // Corrigido aqui
         ConfiguracoesView configuracoesView = new ConfiguracoesView();
         EstatisticasView estatisticasView = new EstatisticasView();
         DesempenhoFinanceiroView desempenhoFinanceiroView = new DesempenhoFinanceiroView();

@@ -104,4 +104,19 @@ public class ReservaController {
         }
         return Arrays.copyOf(reservasDisponiveis, index);
     }
+    public void criarReserva(String nome, int numeroPessoas, int tempoChegada) {
+        int proximoId = reservaDAL.obterProximoId(reservas);
+        Reserva novaReserva = new Reserva(proximoId, nome, numeroPessoas, tempoChegada);
+
+        for (int i = 0; i < reservas.length; i++) {
+            if (reservas[i] == null) {
+                reservas[i] = novaReserva;
+                reservaDAL.salvarReservas(reservas);
+                System.out.println("Reserva adicionada com sucesso!");
+                return;
+            }
+        }
+        System.out.println("Não é possível adicionar mais reservas. Capacidade máxima atingida.");
+    }
+
 }
