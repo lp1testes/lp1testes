@@ -96,9 +96,6 @@ public class GerirMenusView {
         int currentDay = simulacaoDiaController.getDiaAtual();
         int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
 
-        System.out.println("Dia Atual: " + currentDay);
-        System.out.println("Unidade de Tempo Atual: " + currentHour);
-
         // Criação do log
         String logType = "ACTION";
         String logDescription = String.format("Prato criado: %s, Categoria: %s, Custo: %.2f, Venda: %.2f, Tempo: %d, Disponível: %b",
@@ -121,6 +118,19 @@ public class GerirMenusView {
         Prato pratoParaEditar = pratoController.validarPratoParaEditar(scanner);
         if (pratoParaEditar != null) {
             pratoController.editarPrato(scanner, pratoParaEditar);
+
+            // Obter o dia atual e a unidade de tempo atual da simulação
+            int currentDay = simulacaoDiaController.getDiaAtual();
+            int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+            // Criação do log
+            String logType = "ACTION";
+            String logDescription = String.format("Prato editado: %s, Categoria: %s, Custo: %.2f, Venda: %.2f, Tempo: %d, Disponível: %b",
+                    pratoParaEditar.getNome(), pratoParaEditar.getCategoria(), pratoParaEditar.getPrecoCusto(), pratoParaEditar.getPrecoVenda(), pratoParaEditar.getTempoPreparacao(), pratoParaEditar.isDisponivel());
+
+            logsController.criarLog(currentDay, currentHour, logType, logDescription);
+
+            System.out.println("Prato editado com sucesso!");
         }
     }
 
@@ -138,6 +148,17 @@ public class GerirMenusView {
         scanner.nextLine();
 
         pratoController.removerPrato(id);
+
+        // Obter o dia atual e a unidade de tempo atual da simulação
+        int currentDay = simulacaoDiaController.getDiaAtual();
+        int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+        // Criação do log
+        String logType = "ACTION";
+        String logDescription = String.format("Prato removido: ID %d", id);
+
+        logsController.criarLog(currentDay, currentHour, logType, logDescription);
+
         System.out.println("Prato removido com sucesso!");
     }
 
@@ -149,6 +170,16 @@ public class GerirMenusView {
                 System.out.println("ID: " + prato.getId() + ", Nome: " + prato.getNome() + ", Categoria: " + prato.getCategoria() + ", Preço de Custo: " + prato.getPrecoCusto() + ", Preço de Venda: " + prato.getPrecoVenda() + ", Tempo de Preparação: " + prato.getTempoPreparacao() + ", Disponível: " + prato.isDisponivel());
             }
         }
+
+        // Obter o dia atual e a unidade de tempo atual da simulação
+        int currentDay = simulacaoDiaController.getDiaAtual();
+        int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+        // Criação do log
+        String logType = "INFO";
+        String logDescription = "Listagem de pratos exibida";
+
+        logsController.criarLog(currentDay, currentHour, logType, logDescription);
     }
 
     private void criarMenu(Scanner scanner) {
@@ -168,11 +199,34 @@ public class GerirMenusView {
         String sobremesaId = scanner.nextLine();
 
         menuController.criarMenu(entradaId, pratoPrincipalId, sobremesaId);
+
+        // Obter o dia atual e a unidade de tempo atual da simulação
+        int currentDay = simulacaoDiaController.getDiaAtual();
+        int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+        // Criação do log
+        String logType = "ACTION";
+        String logDescription = String.format("Menu criado com entrada ID: %s, prato principal ID: %s, sobremesa ID: %s",
+                entradaId, pratoPrincipalId, sobremesaId);
+
+        logsController.criarLog(currentDay, currentHour, logType, logDescription);
+
+        System.out.println("Menu criado com sucesso!");
     }
 
     private void listarMenus() {
         String menus = menuController.listarMenus();
         System.out.println(menus);
+
+        // Obter o dia atual e a unidade de tempo atual da simulação
+        int currentDay = simulacaoDiaController.getDiaAtual();
+        int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+        // Criação do log
+        String logType = "INFO";
+        String logDescription = "Listagem de menus exibida";
+
+        logsController.criarLog(currentDay, currentHour, logType, logDescription);
     }
 
     private void editarPratoNoMenu(Scanner scanner) {
@@ -194,6 +248,18 @@ public class GerirMenusView {
             String novoPratoId = scanner.nextLine();
 
             menuController.editarPratoNoMenu(menuId, pratoId, novoPratoId);
+
+            // Obter o dia atual e a unidade de tempo atual da simulação
+            int currentDay = simulacaoDiaController.getDiaAtual();
+            int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+            // Criação do log
+            String logType = "ACTION";
+            String logDescription = String.format("Prato editado no menu ID: %d, prato antigo ID: %d, novo prato ID: %s",
+                    menuId, pratoId, novoPratoId);
+
+            logsController.criarLog(currentDay, currentHour, logType, logDescription);
+
             System.out.println("Prato editado com sucesso no menu!");
         } else {
             System.out.println("Prato não encontrado.");
@@ -213,6 +279,16 @@ public class GerirMenusView {
 
         menuController.removerPratoDoMenu(menuId, pratoId);
 
+        // Obter o dia atual e a unidade de tempo atual da simulação
+        int currentDay = simulacaoDiaController.getDiaAtual();
+        int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+        // Criação do log
+        String logType = "ACTION";
+        String logDescription = String.format("Prato removido do menu ID: %d, prato ID: %d", menuId, pratoId);
+
+        logsController.criarLog(currentDay, currentHour, logType, logDescription);
+
         System.out.println("Prato removido com sucesso do menu!");
     }
 
@@ -228,6 +304,17 @@ public class GerirMenusView {
         String pratoId = scanner.nextLine();
 
         menuController.adicionarPratoAoMenu(menuId, pratoId);
+
+        // Obter o dia atual e a unidade de tempo atual da simulação
+        int currentDay = simulacaoDiaController.getDiaAtual();
+        int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+        // Criação do log
+        String logType = "ACTION";
+        String logDescription = String.format("Prato adicionado ao menu ID: %d, prato ID: %s", menuId, pratoId);
+
+        logsController.criarLog(currentDay, currentHour, logType, logDescription);
+
         System.out.println("Prato adicionado com sucesso ao menu!");
     }
 }

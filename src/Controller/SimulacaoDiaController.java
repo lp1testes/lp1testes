@@ -1,6 +1,10 @@
 package Controller;
-
 import Model.*;
+import DAL.LogsDAL;
+import Model.Configuracao;
+import Model.SimulacaoDia;
+import Model.Logs;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -9,10 +13,12 @@ public class SimulacaoDiaController {
     private final SimulacaoDia simulacaoDia;
     private final ConfiguracaoController configuracaoController;
     private ReservaController reservaController;
+    private LogsDAL logsDAL;
     private MesaController mesaController;
     private double prejuizoTotal;
     private double totalGanho;
     private Set<Integer> reservasNotificadas;
+
 
     private SimulacaoDiaController() {
         this.configuracaoController = ConfiguracaoController.getInstancia();
@@ -30,6 +36,13 @@ public class SimulacaoDiaController {
             instance = new SimulacaoDiaController();
         }
         return instance;
+    }
+
+    private LogsDAL getLogsDAL() {
+        if (logsDAL == null) {
+            logsDAL = LogsDAL.getInstance();
+        }
+        return logsDAL;
     }
 
     public void setReservaController(ReservaController reservaController) {
@@ -54,7 +67,11 @@ public class SimulacaoDiaController {
         simulacaoDia.setUnidadeTempoAtual(1);
         simulacaoDia.setAtivo(true);
 
-        return "\n Novo dia iniciado. Dia: " + simulacaoDia.getDia() + ", Unidade de Tempo Atual: " + simulacaoDia.getUnidadeTempoAtual() + ", Perdas Totais: " + prejuizoTotal;
+        // Adicionar log para o novo dia
+        Logs log = new Logs(novoDia, 1, "INFO", "Novo dia iniciado");
+        getLogsDAL().adicionarLog(log);
+
+        return "\n Novo dia iniciado. Dia: " + simulacaoDia.getDia() + ", Unidade de Tempo Atual: " + simulacaoDia.getUnidadeTempoAtual();
     }
 
     public String avancarUnidadeTempo() {

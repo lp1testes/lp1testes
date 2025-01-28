@@ -21,7 +21,6 @@ public class ReservaController {
         reservas = reservaDAL.carregarReservas();
         mesaController = MesaController.getInstance(configuracao, this);
         configuracaoController = ConfiguracaoController.getInstancia();
-
     }
 
     public Reserva[] getReservas() {
@@ -142,5 +141,28 @@ public class ReservaController {
         }
 
         return reservasNaoAssociadas;
+    }
+    public void editarReserva(int id, String novoNome, int novoNumeroPessoas) {
+        Reserva reserva = getReservaById(id);
+        if (reserva != null) {
+            reserva.setNome(novoNome);
+            reserva.setNumeroPessoas(novoNumeroPessoas);
+            reservaDAL.salvarReservas(reservas);
+            System.out.println("Reserva editada com sucesso!");
+        } else {
+            System.out.println("Reserva não encontrada.");
+        }
+    }
+
+    public void removerReserva(int id) {
+        for (int i = 0; i < reservas.length; i++) {
+            if (reservas[i] != null && reservas[i].getId() == id) {
+                reservas[i] = null;
+                reservaDAL.salvarReservas(reservas);
+                System.out.println("Reserva removida com sucesso!");
+                return;
+            }
+        }
+        System.out.println("Reserva não encontrada.");
     }
 }

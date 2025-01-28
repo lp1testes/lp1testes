@@ -16,12 +16,14 @@ public class GerirMesasView {
     private ReservaController reservaController;
     private SimulacaoDiaController simulacaoDiaController;
     private ConfiguracaoController configuracaoController;
+    private LogsController logsController;
 
     public GerirMesasView(MesaController mesaController, ReservaController reservaController, SimulacaoDiaController simulacaoDiaController, ConfiguracaoController configuracaoController) {
         this.mesaController = mesaController;
         this.reservaController = reservaController;
         this.simulacaoDiaController = simulacaoDiaController;
         this.configuracaoController = configuracaoController;
+        this.logsController = new LogsController();
     }
 
     public void exibirMenuGestaoMesas(Scanner scanner) {
@@ -97,6 +99,16 @@ public class GerirMesasView {
         Mesa novaMesa = new Mesa(null, capacidade, false);
         mesaController.adicionarMesa(novaMesa);
 
+        // Obter o dia atual e a unidade de tempo atual da simulação
+        int currentDay = simulacaoDiaController.getDiaAtual();
+        int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+        // Criação do log
+        String logType = "ACTION";
+        String logDescription = String.format("Mesa registrada: Capacidade %d", capacidade);
+
+        logsController.criarLog(currentDay, currentHour, logType, logDescription);
+
         System.out.println("Mesa registrada com sucesso!");
     }
 
@@ -125,6 +137,16 @@ public class GerirMesasView {
                 System.out.println("Mesa " + mesa.getId() + ": Capacidade " + mesa.getCapacidade() + " - " + estado);
             }
         }
+
+        // Obter o dia atual e a unidade de tempo atual da simulação
+        int currentDay = simulacaoDiaController.getDiaAtual();
+        int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+        // Criação do log
+        String logType = "INFO";
+        String logDescription = "Estado das mesas verificado";
+
+        logsController.criarLog(currentDay, currentHour, logType, logDescription);
     }
 
     public void atribuirClientesMesas(Scanner scanner) {
@@ -178,11 +200,15 @@ public class GerirMesasView {
 
             if (tempoAtual <= tempoLimite) {
                 mesaController.atribuirClientesAMesa(idMesa, reserva, tempoAtual);
-                LogsController logsController = new LogsController();
+
+                // Criação do log
                 String logType = "ACTION";
                 String logDescription = String.format("Clientes da reserva %s (ID: %d) foram atribuídos à mesa %d. Número de Pessoas: %d, Tempo de Chegada: %d",
                         reserva.getNome(), reserva.getId(), idMesa, reserva.getNumeroPessoas(), reserva.getTempoChegada());
+
                 logsController.criarLog(currentDay, tempoAtual, logType, logDescription);
+
+                System.out.println("Clientes atribuídos à mesa com sucesso!");
             } else {
                 System.out.println("Tempo limite para atribuição da reserva " + reserva.getNome() + " expirou.");
             }
@@ -207,6 +233,16 @@ public class GerirMesasView {
         Reserva reserva = mesaController.getClienteDaMesa(idMesa);
         if (reserva != null) {
             System.out.println("ID: " + reserva.getId() + ", Nome: " + reserva.getNome() + ", Número de Pessoas: " + reserva.getNumeroPessoas() + ", Tempo de Chegada: " + reserva.getTempoChegada());
+
+            // Obter o dia atual e a unidade de tempo atual da simulação
+            int currentDay = simulacaoDiaController.getDiaAtual();
+            int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+            // Criação do log
+            String logType = "INFO";
+            String logDescription = String.format("Cliente da mesa %d visualizado: ID %d, Nome %s", idMesa, reserva.getId(), reserva.getNome());
+
+            logsController.criarLog(currentDay, currentHour, logType, logDescription);
         } else {
             System.out.println("Nenhum cliente associado a esta mesa ou mesa não encontrada.");
         }
@@ -252,6 +288,17 @@ public class GerirMesasView {
         scanner.nextLine();
 
         mesaController.editarMesa(id, novaCapacidade, novaOcupacao);
+
+        // Obter o dia atual e a unidade de tempo atual da simulação
+        int currentDay = simulacaoDiaController.getDiaAtual();
+        int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+        // Criação do log
+        String logType = "ACTION";
+        String logDescription = String.format("Mesa editada: ID %d, Nova Capacidade %d, Nova Ocupação %b", id, novaCapacidade, novaOcupacao);
+
+        logsController.criarLog(currentDay, currentHour, logType, logDescription);
+
         System.out.println("Mesa editada com sucesso!");
     }
 
@@ -271,6 +318,17 @@ public class GerirMesasView {
         scanner.nextLine();
 
         mesaController.removerMesa(id);
+
+        // Obter o dia atual e a unidade de tempo atual da simulação
+        int currentDay = simulacaoDiaController.getDiaAtual();
+        int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+        // Criação do log
+        String logType = "ACTION";
+        String logDescription = String.format("Mesa removida: ID %d", id);
+
+        logsController.criarLog(currentDay, currentHour, logType, logDescription);
+
         System.out.println("Mesa removida com sucesso!");
     }
 }

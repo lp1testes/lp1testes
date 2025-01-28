@@ -1,0 +1,2 @@
+1;1;2025-01-28 17:02:18;INFO;Novo dia iniciado
+1;1;2025-01-28 17:02:22;ACTION;Mesa registrada: Capacidade 41
