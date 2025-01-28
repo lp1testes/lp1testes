@@ -12,7 +12,7 @@ import Model.Pedido;
 import java.util.*;
 
 public class MesaController {
-
+    private static MesaController instance;
     private Mesa[] mesas;
     private MesaDAL mesaDAL;
     private ReservaController reservaController;
@@ -20,7 +20,7 @@ public class MesaController {
     private int mesaReservaCount;
     private List<Pedido> pedidos;
 
-    public MesaController(Configuracao configuracao, ReservaController reservaController) {
+    private MesaController(Configuracao configuracao, ReservaController reservaController) {
         mesaDAL = new MesaDAL(configuracao);
         mesas = mesaDAL.carregarMesas();
         this.reservaController = reservaController;
@@ -29,7 +29,21 @@ public class MesaController {
         this.pedidos = new ArrayList<>();
     }
 
-    public Mesa[] getMesas() {
+    public static synchronized MesaController getInstance(Configuracao configuracao, ReservaController reservaController) {
+        if (instance == null) {
+            instance = new MesaController(configuracao, reservaController);
+        }
+        return instance;
+    }
+
+    public void setReservaController(ReservaController reservaController) {
+        this.reservaController = reservaController;
+
+    }
+
+    // Restante da classe permanece inalterada...
+
+        public Mesa[] getMesas() {
         return mesas;
     }
 
@@ -394,7 +408,7 @@ public class MesaController {
         System.out.println("Pagamento efetuado com sucesso para a mesa " + idMesa);
     }
 
-    private void marcarMesaComoDisponivel(int idMesa) {
+    public void marcarMesaComoDisponivel(int idMesa) {
         Mesa mesa = getMesaById(idMesa);
         if (mesa != null) {
             mesa.setOcupada(false);
@@ -439,6 +453,37 @@ public class MesaController {
 
         return tempoAtual > tempoLimitePagamento;
     }
+    public boolean tempoReservaUltrapassado(int idMesa, int tempoAtual) {
+        MesaReserva mesaReserva = getMesaReservaByIdMesa(idMesa);
+        if (mesaReserva == null) {
+            // Consider the reservation as not associated if there's no MesaReserva instance
+            return true;
+        }
 
+        Configuracao configuracao = ConfiguracaoController.getInstancia().getConfiguracao();
+        int tempoLimiteReserva = mesaReserva.getTempoAssociacao() + configuracao.getUnidadesTempoIrParaMesa();
+
+        return tempoAtual > tempoLimiteReserva;
+    }
+    public boolean tempoPedidoUltrapassado(int idMesa, int tempoAtual) {
+        MesaReserva mesaReserva = getMesaReservaByIdMesa(idMesa);
+        if (mesaReserva == null) {
+            return false;
+        }
+
+        Configuracao configuracao = ConfiguracaoController.getInstancia().getConfiguracao();
+        int tempoLimitePedido = mesaReserva.getTempoAssociacao() + configuracao.getUnidadesTempoParaPedido();
+
+        return tempoAtual > tempoLimitePedido;
+    }
+
+    private MesaReserva getMesaReservaByIdMesa(int idMesa) {
+        for (int i = 0; i < mesaReservaCount; i++) {
+            if (mesaReservas[i] != null && mesaReservas[i].getIdMesa() == idMesa) {
+                return mesaReservas[i];
+            }
+        }
+        return null;
+    }
 
 }

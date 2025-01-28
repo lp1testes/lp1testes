@@ -19,7 +19,7 @@ public class MenuPrincipalView {
         this.configuracaoController = ConfiguracaoController.getInstancia();
         this.simulacaoDiaController = SimulacaoDiaController.getInstance();
         this.reservaController = new ReservaController(configuracaoController.getConfiguracao());
-        this.mesaController = new MesaController(configuracaoController.getConfiguracao(), reservaController);
+        this.mesaController = MesaController.getInstance(configuracaoController.getConfiguracao(), reservaController);
         this.pratoController = new PratoController();
         this.menuController = new MenuController();
 

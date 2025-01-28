@@ -19,8 +19,9 @@ public class ReservaController {
         this.configuracao = configuracao;
         reservaDAL = new ReservaDAL(configuracao);
         reservas = reservaDAL.carregarReservas();
-        mesaController = new MesaController(configuracao, this);
+        mesaController = MesaController.getInstance(configuracao, this);
         configuracaoController = ConfiguracaoController.getInstancia();
+
     }
 
     public Reserva[] getReservas() {
@@ -118,5 +119,28 @@ public class ReservaController {
         }
         System.out.println("Não é possível adicionar mais reservas. Capacidade máxima atingida.");
     }
+    public Reserva[] listarReservasNaoAssociadas(int tempoAtual) {
+        int tempoLimite = configuracaoController.getConfiguracao().getUnidadesTempoIrParaMesa();
+        int count = 0;
 
+        // Primeiro, contar o número de reservas não associadas
+        for (Reserva reserva : reservas) {
+            if (reserva != null && !reserva.isAssociada() && tempoAtual > reserva.getTempoChegada() + tempoLimite) {
+                count++;
+            }
+        }
+
+        // Criar um array do tamanho apropriado
+        Reserva[] reservasNaoAssociadas = new Reserva[count];
+        int index = 0;
+
+        // Preencher o array com as reservas não associadas
+        for (Reserva reserva : reservas) {
+            if (reserva != null && !reserva.isAssociada() && tempoAtual > reserva.getTempoChegada() + tempoLimite) {
+                reservasNaoAssociadas[index++] = reserva;
+            }
+        }
+
+        return reservasNaoAssociadas;
+    }
 }
