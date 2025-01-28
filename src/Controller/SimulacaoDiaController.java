@@ -1,12 +1,15 @@
 package Controller;
 
 import Model.SimulacaoDia;
+import DAL.LogsDAL;
+import Model.Logs;
 
 public class SimulacaoDiaController {
     private static SimulacaoDiaController instance;
     private final SimulacaoDia simulacaoDia;
     private final ConfiguracaoController configuracaoController;
     private ReservaController reservaController;
+    private LogsDAL logsDAL;
 
     private SimulacaoDiaController() {
         this.configuracaoController = ConfiguracaoController.getInstancia();
@@ -18,6 +21,13 @@ public class SimulacaoDiaController {
             instance = new SimulacaoDiaController();
         }
         return instance;
+    }
+
+    private LogsDAL getLogsDAL() {
+        if (logsDAL == null) {
+            logsDAL = LogsDAL.getInstance();
+        }
+        return logsDAL;
     }
 
     public void setReservaController(ReservaController reservaController) {
@@ -40,6 +50,10 @@ public class SimulacaoDiaController {
         simulacaoDia.setDia(novoDia);
         simulacaoDia.setUnidadeTempoAtual(1);
         simulacaoDia.setAtivo(true);
+
+        // Adicionar log para o novo dia
+        Logs log = new Logs(novoDia, 1, "INFO", "Novo dia iniciado");
+        getLogsDAL().adicionarLog(log);
 
         return "\n Novo dia iniciado. Dia: " + simulacaoDia.getDia() + ", Unidade de Tempo Atual: " + simulacaoDia.getUnidadeTempoAtual();
     }

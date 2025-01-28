@@ -1,2 +1,0 @@
-1;1;2025-01-28 15:52:10;ACTION;Clientes da reserva Manuel Jesus (ID: 1) foram atribuídos à mesa 1. Número de Pessoas: 5, Tempo de Chegada: 1
-1;1;2025-01-28 16:00:14;ACTION;Clientes da reserva Manuel Jesus (ID: 1) foram atribuídos à mesa 2. Número de Pessoas: 5, Tempo de Chegada: 1
