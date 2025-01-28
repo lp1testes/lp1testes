@@ -35,30 +35,26 @@ public class RegistarPedidosView {
         do {
             System.out.println("\n-- Registo de Pedidos --");
             System.out.println("1. Associar Pedido a uma Mesa");
-            System.out.println("2. Calcular Total de um Pedido");
-            System.out.println("3. Gerir Pedidos");
-            System.out.println("4. Listar Pedidos Atendidos de uma Mesa");
-            System.out.println("5. Efetuar Pagamento");
+            System.out.println("2. Gerir Pedidos");
+            System.out.println("3. Listar Pedidos Atendidos de uma Mesa");
+            System.out.println("4. Efetuar Pagamento");
             System.out.println("0. Voltar ao Menu Principal");
             System.out.print("Escolha uma opção: ");
 
             MenuPrincipalView menuPrincipalView = new MenuPrincipalView();
-            opcao = menuPrincipalView.obterOpcaoValida(0, 5);
+            opcao = menuPrincipalView.obterOpcaoValida(0, 4);
 
             switch (opcao) {
                 case 1:
                     associarPedido(scanner);
                     break;
                 case 2:
-                    calcularPedido();
-                    break;
-                case 3:
                     gerirPedidos();
                     break;
-                case 4:
+                case 3:
                     listarPedidosAtendidos(scanner);
                     break;
-                case 5:
+                case 4:
                     efetuarPagamentoView(scanner);
                     break;
                 case 0:
@@ -83,26 +79,19 @@ public class RegistarPedidosView {
         }
 
         int tempoAtual = simulacaoDiaController.getUnidadeTempoAtual();
-        Pedido pedido = mesaController.getPedidoByMesa(idMesa);
 
-        if (pedido == null) {
-            System.out.println("Pedido não encontrado para a mesa " + idMesa);
+        if (!mesaController.podeEfetuarPagamento(idMesa, tempoAtual)) {
+            System.out.println("O pagamento só pode ser efetuado quando o prato com o maior tempo de preparo tiver sido consumido.");
             return;
         }
 
-        if (tempoAtual < pedido.getTempoPedido() + 1) {
-            System.out.println("O pagamento só pode ser efetuado 1 unidade de tempo após o pedido.");
-            return;
-        }
-
-        mesaController.efetuarPagamento(idMesa);
+        mesaController.efetuarPagamento(idMesa, tempoAtual);
     }
 
     private void associarPedido(Scanner scanner) {
         int tempoAtual = simulacaoDiaController.getUnidadeTempoAtual();
         int unidadesTempoParaPedido = configuracaoController.getConfiguracao().getUnidadesTempoParaPedido();
 
-        // Listar mesas ocupadas com reservas que ainda não foram atendidas
         Mesa[] mesasOcupadas = mesaController.listarMesasOcupadasComReservasNaoAtendidas(tempoAtual, unidadesTempoParaPedido);
         if (mesasOcupadas.length == 0) {
             System.out.println("Não há mesas ocupadas com reservas não atendidas no momento.");
@@ -124,10 +113,10 @@ public class RegistarPedidosView {
                 idMesa = scanner.nextInt();
             } catch (InputMismatchException e) {
                 System.out.println("Entrada inválida! Por favor, insira um número inteiro.");
-                scanner.nextLine(); // Limpar o buffer
+                scanner.nextLine();
             }
         }
-        scanner.nextLine(); // Limpar o buffer
+        scanner.nextLine();
 
         Reserva reserva = mesaController.getClienteDaMesa(idMesa);
         if (reserva == null) {
@@ -140,7 +129,7 @@ public class RegistarPedidosView {
 
         if (tempoAtual < tempoAssociacao + 1) {
             System.out.println("O cliente terá que esperar uma unidade de tempo para fazer o pedido.");
-            return; // Retorna sem marcar a reserva como atendida
+            return;
         }
 
         if (tempoAtual > tempoLimite) {
@@ -152,39 +141,7 @@ public class RegistarPedidosView {
         System.out.println("Clientes da reserva " + reserva.getNome() + " estão prontos para fazer o pedido.");
         mesaController.registrarPedido(idMesa, tempoAtual, scanner);
 
-        // Marcar a reserva como atendida
         mesaController.marcarReservaComoAtendida(idMesa);
-    }
-
-    private void exibirSubmenuCliente(Scanner scanner, int idMesa, int clienteIndex) {
-        int opcao;
-
-        do {
-            System.out.printf("Cliente %d: Escolha entre as seguintes opções:%n", clienteIndex + 1);
-            System.out.println("1. Prato");
-            System.out.println("2. Menu");
-            System.out.print("Escolha uma opção: ");
-
-            try {
-                opcao = scanner.nextInt();
-                scanner.nextLine(); // Limpar o buffer
-            } catch (InputMismatchException e) {
-                System.out.println("Entrada inválida! Por favor, insira um número inteiro.");
-                scanner.nextLine(); // Limpar o buffer
-                opcao = -1;
-            }
-
-            switch (opcao) {
-                case 1:
-                    listarPratos(scanner, idMesa, clienteIndex);
-                    break;
-                case 2:
-                    listarMenus(scanner, idMesa, clienteIndex);
-                    break;
-                default:
-                    System.out.println("Opção inválida! Tente novamente.");
-            }
-        } while (opcao != 1 && opcao != 2);
     }
 
     private void listarPratos(Scanner scanner, int idMesa, int clienteIndex) {
@@ -276,10 +233,6 @@ public class RegistarPedidosView {
         }
 
         mesaController.listarPedidosAtendidos(idMesa);
-    }
-
-    private void calcularPedido() {
-        // Implementar a funcionalidade de calcular o total de um pedido
     }
 
     private void gerirPedidos() {

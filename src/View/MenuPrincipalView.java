@@ -73,10 +73,11 @@ public class MenuPrincipalView {
             System.out.println("7. Gestão Financeira");
             System.out.println("8. Estatísticas Gerais");
             System.out.println("9. Configurações");
+            System.out.println("10. Salvar");
             System.out.println("0. Sair");
             System.out.print("Escolha uma opção: ");
 
-            opcao = obterOpcaoValida(0, 9);
+            opcao = obterOpcaoValida(0, 10);
 
             switch (opcao) {
                 case 1:
@@ -109,6 +110,8 @@ public class MenuPrincipalView {
                     } else {
                         System.out.println("Senha incorreta. Acesso negado.");
                     }
+                    break;
+                case 10:
                     break;
                 case 0:
                     System.out.println("Saindo do sistema...");

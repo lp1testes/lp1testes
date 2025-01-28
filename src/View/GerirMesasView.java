@@ -131,7 +131,7 @@ public class GerirMesasView {
         verificarEstadoMesas();
 
         int tempoAtual = simulacaoDiaController.getUnidadeTempoAtual();
-        int currentDay = simulacaoDiaController.getDiaAtual(); // Supondo que você tenha esse método
+        int currentDay = simulacaoDiaController.getDiaAtual();
         int unitsForAssignment = configuracaoController.getConfiguracao().getUnidadesTempoIrParaMesa();
 
         Reserva[] reservasDisponiveis = reservaController.listarReservasDisponiveis(tempoAtual);

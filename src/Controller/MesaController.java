@@ -9,10 +9,7 @@ import Model.Prato;
 import Model.Menu;
 import Model.Pedido;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class MesaController {
 
@@ -175,10 +172,9 @@ public class MesaController {
 
         int tempoAssociacao = mesaReserva.getTempoAssociacao();
 
-        // Verificar se o cliente pode fazer o pedido
         if (tempoAtual < tempoAssociacao + 1) {
             System.out.println("O cliente terá que esperar uma unidade de tempo para fazer o pedido.");
-            return; // Adicione o return aqui para garantir que o pedido não seja registrado
+            return;
         }
 
         Configuracao configuracao = ConfiguracaoController.getInstancia().getConfiguracao();
@@ -197,19 +193,24 @@ public class MesaController {
         if (pedido == null) {
             pedido = new Pedido();
             pedido.setMesa(getMesaById(idMesa));
-            pedido.setTempoPedido(tempoAtual); // Armazenar o tempo do pedido
+            pedido.setTempoPedido(tempoAtual);
             pedidos.add(pedido);
         }
+
+        int tempoRestanteDia = configuracao.getUnidadesTempoDia() - (tempoAtual + 1 + configuracao.getUnidadesTempoParaPagamento());
+
         for (int i = 0; i < reservaController.getReservaById(mesaReserva.getIdReserva()).getNumeroPessoas(); i++) {
-            System.out.println("Cliente " + (i + 1) + ": Escolha entre prato ou menu:");
-            String escolha = scanner.nextLine().trim().toLowerCase();
-            if (escolha.equals("prato")) {
-                listarPratos(scanner, idMesa, pedido);
-            } else if (escolha.equals("menu")) {
-                listarMenus(scanner, idMesa, pedido);
-            } else {
-                System.out.println("Escolha inválida.");
-                i--; // Pergunta novamente ao mesmo cliente
+            boolean pedidoValido = false;
+            while (!pedidoValido) {
+                System.out.println("Cliente " + (i + 1) + ": Escolha entre prato ou menu:");
+                String escolha = scanner.nextLine().trim().toLowerCase();
+                if (escolha.equals("prato")) {
+                    pedidoValido = listarPratos(scanner, idMesa, pedido, tempoRestanteDia);
+                } else if (escolha.equals("menu")) {
+                    pedidoValido = listarMenus(scanner, idMesa, pedido, tempoRestanteDia);
+                } else {
+                    System.out.println("Escolha inválida.");
+                }
             }
         }
 
@@ -218,18 +219,19 @@ public class MesaController {
         System.out.printf("Total Venda: %.2f\n", pedido.getTotalVenda());
         System.out.printf("Lucro: %.2f\n", pedido.getLucro());
     }
-    private void listarPratos(Scanner scanner, int idMesa, Pedido pedido) {
+
+    private boolean listarPratos(Scanner scanner, int idMesa, Pedido pedido, int tempoRestanteDia) {
         PratoController pratoController = new PratoController();
         Prato[] pratos = pratoController.getPratos();
         if (pratos.length == 0) {
             System.out.println("Não há pratos disponíveis no momento.");
-            return;
+            return false;
         }
 
         System.out.println("\n-- Pratos Disponíveis --");
         for (Prato prato : pratos) {
-            if (prato != null && prato.isDisponivel()) {
-                System.out.println("ID: " + prato.getId() + " - Nome: " + prato.getNome() + " - Preço: " + prato.getPrecoVenda());
+            if (prato != null) {
+                System.out.println("ID: " + prato.getId() + " - Nome: " + prato.getNome() + " - Preço: " + prato.getPrecoVenda() + " - Tempo de Preparação: " + prato.getTempoPreparacao());
             }
         }
 
@@ -238,20 +240,25 @@ public class MesaController {
         scanner.nextLine(); // Limpar o buffer
 
         Prato pratoSelecionado = pratoController.getPratoById(idPrato);
-        if (pratoSelecionado != null && pratoSelecionado.isDisponivel()) {
+        if (pratoSelecionado != null && pratoSelecionado.isDisponivel() && pratoSelecionado.getTempoPreparacao() <= tempoRestanteDia) {
             pedido.adicionarPrato(pratoSelecionado);
-            System.out.println("Prato " + pratoSelecionado.getNome() + " adicionado ao pedido.");
+            System.out.printf("Prato %s adicionado ao pedido.%n", pratoSelecionado.getNome());
+            return true;
+        } else if (pratoSelecionado != null && pratoSelecionado.getTempoPreparacao() > tempoRestanteDia) {
+            System.out.println("Prato selecionado ultrapassa o tempo de preparação disponível no dia.");
+            return false;
         } else {
             System.out.println("Prato inválido ou não disponível.");
+            return false;
         }
     }
 
-    private void listarMenus(Scanner scanner, int idMesa, Pedido pedido) {
+    private boolean listarMenus(Scanner scanner, int idMesa, Pedido pedido, int tempoRestanteDia) {
         MenuController menuController = new MenuController();
         Menu[] menus = menuController.obterTodosMenus();
         if (menus.length == 0) {
             System.out.println("Não há menus disponíveis no momento.");
-            return;
+            return false;
         }
 
         System.out.println("\n-- Menus Disponíveis --");
@@ -259,8 +266,8 @@ public class MesaController {
             if (menu != null) {
                 System.out.println("ID: " + menu.getId() + " - Pratos:");
                 for (Prato prato : menu.getPratos()) {
-                    if (prato != null && prato.isDisponivel()) {
-                        System.out.println("   ID: " + prato.getId() + " - Nome: " + prato.getNome() + " - Preço: " + prato.getPrecoVenda());
+                    if (prato != null) {
+                        System.out.println("   ID: " + prato.getId() + " - Nome: " + prato.getNome() + " - Preço: " + prato.getPrecoVenda() + " - Tempo de Preparação: " + prato.getTempoPreparacao());
                     }
                 }
             }
@@ -271,11 +278,26 @@ public class MesaController {
         scanner.nextLine(); // Limpar o buffer
 
         Menu menuSelecionado = menuController.getMenuById(idMenu);
+        boolean todosPratosDisponiveis = true;
         if (menuSelecionado != null) {
+            for (Prato prato : menuSelecionado.getPratos()) {
+                if (prato == null || !prato.isDisponivel() || prato.getTempoPreparacao() > tempoRestanteDia) {
+                    todosPratosDisponiveis = false;
+                    break;
+                }
+            }
+        }
+
+        if (menuSelecionado != null && todosPratosDisponiveis) {
             pedido.adicionarMenu(menuSelecionado);
-            System.out.println("Menu " + menuSelecionado.getId() + " adicionado ao pedido.");
+            System.out.printf("Menu %d adicionado ao pedido.%n", menuSelecionado.getId());
+            return true;
+        } else if (menuSelecionado != null) {
+            System.out.println("Menu contém pratos que ultrapassam o tempo de preparação disponível no dia.");
+            return false;
         } else {
             System.out.println("Menu inválido.");
+            return false;
         }
     }
 
@@ -343,13 +365,13 @@ public class MesaController {
             clienteCount++;
         }
 
-        // Mostrar os totais
         System.out.printf("Total Custo: %.2f\n", pedido.getTotalCusto());
         System.out.printf("Total Venda: %.2f\n", pedido.getTotalVenda());
         System.out.printf("Lucro: %.2f\n", pedido.getLucro());
         System.out.println("Estado do pedido: " + (pedido.isPago() ? "Pago" : "Não Pago"));
     }
-    public void efetuarPagamento(int idMesa) {
+
+    public void efetuarPagamento(int idMesa, int tempoAtual) {
         Pedido pedido = getPedidoByMesa(idMesa);
         if (pedido == null) {
             System.out.println("Pedido não encontrado para a mesa " + idMesa);
@@ -359,6 +381,64 @@ public class MesaController {
             System.out.println("O pedido já foi pago.");
             return;
         }
+
+        if (tempoPagamentoUltrapassado(idMesa, tempoAtual)) {
+            System.out.println("O tempo limite para pagamento foi ultrapassado. Clientes da mesa " + idMesa + " foram embora.");
+            removerReservaDaMesa(idMesa);
+            marcarMesaComoDisponivel(idMesa);
+            return;
+        }
+
         pedido.setPago(true);
+        marcarMesaComoDisponivel(idMesa); // Marcar a mesa como disponível após o pagamento
         System.out.println("Pagamento efetuado com sucesso para a mesa " + idMesa);
-    }}
+    }
+
+    private void marcarMesaComoDisponivel(int idMesa) {
+        Mesa mesa = getMesaById(idMesa);
+        if (mesa != null) {
+            mesa.setOcupada(false);
+        }
+    }
+
+    public boolean podeEfetuarPagamento(int idMesa, int tempoAtual) {
+        Pedido pedido = getPedidoByMesa(idMesa);
+        if (pedido == null) {
+            return false;
+        }
+
+        int tempoMaximoPreparo = getTempoMaximoPreparo(pedido);
+        return tempoAtual >= pedido.getTempoPedido() + tempoMaximoPreparo;
+    }
+
+    private int getTempoMaximoPreparo(Pedido pedido) {
+        int maxTempo = 0;
+        for (Prato prato : pedido.getPratos()) {
+            if (prato != null && prato.getTempoPreparacao() > maxTempo) {
+                maxTempo = prato.getTempoPreparacao();
+            }
+        }
+        for (Menu menu : pedido.getMenus()) {
+            for (Prato prato : menu.getPratos()) {
+                if (prato != null && prato.getTempoPreparacao() > maxTempo) {
+                    maxTempo = prato.getTempoPreparacao();
+                }
+            }
+        }
+        return maxTempo;
+    }
+
+    public boolean tempoPagamentoUltrapassado(int idMesa, int tempoAtual) {
+        Pedido pedido = getPedidoByMesa(idMesa);
+        if (pedido == null) {
+            return false;
+        }
+
+        Configuracao configuracao = ConfiguracaoController.getInstancia().getConfiguracao();
+        int tempoLimitePagamento = pedido.getTempoPedido() + getTempoMaximoPreparo(pedido) + configuracao.getUnidadesTempoParaPagamento();
+
+        return tempoAtual > tempoLimitePagamento;
+    }
+
+
+}

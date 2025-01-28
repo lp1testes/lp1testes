@@ -1,6 +1,0 @@
-1;1;2025-01-27 19:08:13;ACTION;Clientes da reserva Alberto Silva (ID: 3) foram atribuídos à mesa 1. Número de Pessoas: 7, Tempo de Chegada: 1
-1;1;2025-01-27 19:08:33;ACTION;Clientes da reserva Maria José (ID: 2) foram atribuídos à mesa 8. Número de Pessoas: 2, Tempo de Chegada: 1
-1;1;2025-01-27 19:10:56;ACTION;Clientes da reserva Manuel Jesus (ID: 1) foram atribuídos à mesa 1. Número de Pessoas: 5, Tempo de Chegada: 1
-1;1;2025-01-27 19:11:02;ACTION;Clientes da reserva Maria José (ID: 2) foram atribuídos à mesa 8. Número de Pessoas: 2, Tempo de Chegada: 1
-1;1;2025-01-27 19:42:33;ACTION;Clientes da reserva David Oliveira (ID: 8) foram atribuídos à mesa 2. Número de Pessoas: 7, Tempo de Chegada: 10
-1;1;2025-01-27 19:42:48;ACTION;Clientes da reserva Alberto Silva (ID: 3) foram atribuídos à mesa 8. Número de Pessoas: 7, Tempo de Chegada: 1
