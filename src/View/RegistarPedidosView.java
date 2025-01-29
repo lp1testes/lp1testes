@@ -1,11 +1,6 @@
 package View;
 
-import Controller.MesaController;
-import Controller.ReservaController;
-import Controller.SimulacaoDiaController;
-import Controller.ConfiguracaoController;
-import Controller.PratoController;
-import Controller.MenuController;
+import Controller.*;
 import Model.*;
 
 import java.util.InputMismatchException;
@@ -19,6 +14,7 @@ public class RegistarPedidosView {
     private ConfiguracaoController configuracaoController;
     private PratoController pratoController;
     private MenuController menuController;
+    private LogsController logsController;
 
     public RegistarPedidosView(MesaController mesaController, ReservaController reservaController, SimulacaoDiaController simulacaoDiaController, ConfiguracaoController configuracaoController, PratoController pratoController, MenuController menuController) {
         this.mesaController = mesaController;
@@ -27,6 +23,7 @@ public class RegistarPedidosView {
         this.configuracaoController = configuracaoController;
         this.pratoController = pratoController;
         this.menuController = menuController;
+        this.logsController = new LogsController();
     }
 
     public void exibirMenuRegistoPedidos(Scanner scanner) {
@@ -86,6 +83,16 @@ public class RegistarPedidosView {
         }
 
         mesaController.efetuarPagamento(idMesa, tempoAtual);
+
+        // Obter o dia atual e a unidade de tempo atual da simulação
+        int currentDay = simulacaoDiaController.getDiaAtual();
+        int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+        // Criação do log
+        String logType = "ACTION";
+        String logDescription = String.format("Pagamento efetuado para a mesa ID: %d", idMesa);
+
+        logsController.criarLog(currentDay, currentHour, logType, logDescription);
     }
 
     private void associarPedido(Scanner scanner) {
@@ -142,6 +149,16 @@ public class RegistarPedidosView {
         mesaController.registrarPedido(idMesa, tempoAtual, scanner);
 
         mesaController.marcarReservaComoAtendida(idMesa);
+
+        // Obter o dia atual e a unidade de tempo atual da simulação
+        int currentDay = simulacaoDiaController.getDiaAtual();
+        int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+        // Criação do log
+        String logType = "ACTION";
+        String logDescription = String.format("Pedido associado à mesa ID: %d, Reserva: %s (ID da Reserva: %d)", idMesa, reserva.getNome(), reserva.getId());
+
+        logsController.criarLog(currentDay, currentHour, logType, logDescription);
     }
 
     private void listarPratos(Scanner scanner, int idMesa, int clienteIndex) {
@@ -174,6 +191,16 @@ public class RegistarPedidosView {
         if (pratoSelecionado != null && pratoSelecionado.isDisponivel()) {
             mesaController.adicionarPratoAoPedido(idMesa, pratoSelecionado);
             System.out.printf("Prato %s adicionado ao pedido do Cliente %d.%n", pratoSelecionado.getNome(), clienteIndex + 1);
+
+            // Obter o dia atual e a unidade de tempo atual da simulação
+            int currentDay = simulacaoDiaController.getDiaAtual();
+            int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+            // Criação do log
+            String logType = "ACTION";
+            String logDescription = String.format("Prato %s (ID: %d) adicionado ao pedido da mesa ID: %d", pratoSelecionado.getNome(), pratoSelecionado.getId(), idMesa);
+
+            logsController.criarLog(currentDay, currentHour, logType, logDescription);
         } else {
             System.out.println("Prato inválido ou não disponível.");
         }
@@ -214,6 +241,16 @@ public class RegistarPedidosView {
         if (menuSelecionado != null) {
             mesaController.adicionarMenuAoPedido(idMesa, menuSelecionado);
             System.out.printf("Menu %d adicionado ao pedido do Cliente %d.%n", menuSelecionado.getId(), clienteIndex + 1);
+
+            // Obter o dia atual e a unidade de tempo atual da simulação
+            int currentDay = simulacaoDiaController.getDiaAtual();
+            int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+            // Criação do log
+            String logType = "ACTION";
+            String logDescription = String.format("Menu %d adicionado ao pedido da mesa ID: %d", menuSelecionado.getId(), idMesa);
+
+            logsController.criarLog(currentDay, currentHour, logType, logDescription);
         } else {
             System.out.println("Menu inválido.");
         }
@@ -233,6 +270,16 @@ public class RegistarPedidosView {
         }
 
         mesaController.listarPedidosAtendidos(idMesa);
+
+        // Obter o dia atual e a unidade de tempo atual da simulação
+        int currentDay = simulacaoDiaController.getDiaAtual();
+        int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+        // Criação do log
+        String logType = "INFO";
+        String logDescription = String.format("Pedidos atendidos listados para a mesa ID: %d", idMesa);
+
+        logsController.criarLog(currentDay, currentHour, logType, logDescription);
     }
 
     private void gerirPedidos() {

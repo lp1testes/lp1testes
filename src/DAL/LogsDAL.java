@@ -1,7 +1,6 @@
 package DAL;
 
 import Controller.ConfiguracaoController;
-import Controller.ReservaController;
 import Controller.SimulacaoDiaController;
 import Model.Configuracao;
 import Model.Logs;
@@ -11,7 +10,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class LogsDAL {
@@ -23,7 +21,6 @@ public class LogsDAL {
     private LogsDAL() {
         ConfiguracaoController configuracaoController = ConfiguracaoController.getInstancia();
         this.configuracao = configuracaoController.getConfiguracao();
-        this.simulacaoDiaController = SimulacaoDiaController.getInstance();
     }
 
     public static synchronized LogsDAL getInstance() {
@@ -33,9 +30,16 @@ public class LogsDAL {
         return instance;
     }
 
+    private SimulacaoDiaController getSimulacaoDiaController() {
+        if (simulacaoDiaController == null) {
+            simulacaoDiaController = SimulacaoDiaController.getInstance();
+        }
+        return simulacaoDiaController;
+    }
+
     public void adicionarLog(Logs log) {
         String fileName = getLogFileName(); // Obtém o nome do arquivo de log
-        File file = new File(configuracao.getCaminhoFicheiros() + fileName);
+        File file = new File(configuracao.getCaminhoFicheiros() + "Logs/" + fileName);
         File directory = file.getParentFile();
 
         if (!directory.exists()) {
@@ -53,13 +57,14 @@ public class LogsDAL {
     }
 
     private String getLogFileName() {
-        // Inicializar a simulação dia para obter o dia atual
-        SimulacaoDia simulacaoDia = simulacaoDiaController.getSimulacaoDia();
-        int diaAtual = simulacaoDia.getDia();
-        String systemTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-
-
-        String fileName = String.format("Logs_Dia%d_Sistema%s.txt", diaAtual, systemTime);
+        SimulacaoDia simulacaoDia = getSimulacaoDiaController().getSimulacaoDia();
+        String fileName;
+        if (simulacaoDia.isAtivo()) {
+            int diaAtual = simulacaoDia.getDia();
+            fileName = String.format("Logs_Dia%d.txt", diaAtual);
+        } else {
+            fileName = "Geral_Log.txt";
+        }
         return fileName;
     }
 }

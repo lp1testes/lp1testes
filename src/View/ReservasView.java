@@ -1,7 +1,9 @@
 package View;
+
 import Controller.ConfiguracaoController;
 import Controller.ReservaController;
 import Controller.SimulacaoDiaController;
+import Controller.LogsController;
 
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -9,13 +11,15 @@ import java.util.Scanner;
 public class ReservasView {
 
     private ReservaController reservaController;
-    private GerirMesasView gerirMesasView; // Adicionado
-    private SimulacaoDiaController simulacaoDiaController; // Adicionado
+    private GerirMesasView gerirMesasView;
+    private SimulacaoDiaController simulacaoDiaController;
+    private LogsController logsController;
 
-    public ReservasView(ReservaController reservaController, GerirMesasView gerirMesasView, SimulacaoDiaController simulacaoDiaController) { // Modificado
+    public ReservasView(ReservaController reservaController, GerirMesasView gerirMesasView, SimulacaoDiaController simulacaoDiaController) {
         this.reservaController = reservaController;
-        this.gerirMesasView = gerirMesasView; // Adicionado
-        this.simulacaoDiaController = simulacaoDiaController; // Adicionado
+        this.gerirMesasView = gerirMesasView;
+        this.simulacaoDiaController = simulacaoDiaController;
+        this.logsController = new LogsController();
     }
 
     public void exibirMenuReservas(Scanner scanner) {
@@ -41,10 +45,10 @@ public class ReservasView {
                     adicionarReserva(scanner);
                     break;
                 case 3:
-                    removerReserva();
+                    removerReserva(scanner);
                     break;
                 case 4:
-                    editarReserva();
+                    editarReserva(scanner);
                     break;
                 case 0:
                     System.out.println("Voltando ao menu principal...");
@@ -53,7 +57,6 @@ public class ReservasView {
                     System.out.println("Opção inválida! Tente novamente.");
             }
         } while (opcao != 0);
-
     }
 
     private void adicionarReserva(Scanner scanner) {
@@ -88,6 +91,16 @@ public class ReservasView {
 
         reservaController.criarReserva(nome, numeroPessoas, tempoChegada);
 
+        // Obter o dia atual e a unidade de tempo atual da simulação
+        int currentDay = simulacaoDiaController.getDiaAtual();
+        int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+        // Criação do log
+        String logType = "ACTION";
+        String logDescription = String.format("Reserva criada: Nome: %s, Número de Pessoas: %d, Tempo de Chegada: %d", nome, numeroPessoas, tempoChegada);
+
+        logsController.criarLog(currentDay, currentHour, logType, logDescription);
+
         System.out.print("Deseja associar esta reserva a uma mesa agora? (sim/não): ");
         String associar = scanner.nextLine().trim().toLowerCase();
         if (associar.equals("sim")) {
@@ -98,13 +111,83 @@ public class ReservasView {
     private void mostrarReservas() {
         String reservas = reservaController.listarReservas();
         System.out.println(reservas);
+
+        // Obter o dia atual e a unidade de tempo atual da simulação
+        int currentDay = simulacaoDiaController.getDiaAtual();
+        int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+        // Criação do log
+        String logType = "INFO";
+        String logDescription = "Listagem de reservas exibida";
+
+        logsController.criarLog(currentDay, currentHour, logType, logDescription);
     }
 
-    private void removerReserva() {
-        // Implementar a funcionalidade de remover reserva
+    private void removerReserva(Scanner scanner) {
+        System.out.print("Digite o ID da reserva a ser removida: ");
+        int idReserva = -1;
+        try {
+            idReserva = scanner.nextInt();
+            scanner.nextLine(); // Limpar o buffer
+        } catch (InputMismatchException e) {
+            System.out.println("Entrada inválida! Por favor, insira um número inteiro.");
+            scanner.nextLine(); // Limpar o buffer
+            return;
+        }
+
+        reservaController.removerReserva(idReserva);
+
+        // Obter o dia atual e a unidade de tempo atual da simulação
+        int currentDay = simulacaoDiaController.getDiaAtual();
+        int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+        // Criação do log
+        String logType = "ACTION";
+        String logDescription = String.format("Reserva removida: ID %d", idReserva);
+
+        logsController.criarLog(currentDay, currentHour, logType, logDescription);
+
+        System.out.println("Reserva removida com sucesso!");
     }
 
-    private void editarReserva() {
-        // Implementar a funcionalidade de editar reserva
+    private void editarReserva(Scanner scanner) {
+        System.out.print("Digite o ID da reserva a ser editada: ");
+        int idReserva = -1;
+        try {
+            idReserva = scanner.nextInt();
+            scanner.nextLine(); // Limpar o buffer
+        } catch (InputMismatchException e) {
+            System.out.println("Entrada inválida! Por favor, insira um número inteiro.");
+            scanner.nextLine(); // Limpar o buffer
+            return;
+        }
+
+        System.out.print("Digite o novo nome da reserva: ");
+        String novoNome = scanner.nextLine();
+
+        System.out.print("Digite o novo número de pessoas: ");
+        int novoNumeroPessoas = -1;
+        try {
+            novoNumeroPessoas = scanner.nextInt();
+            scanner.nextLine(); // Limpar o buffer
+        } catch (InputMismatchException e) {
+            System.out.println("Entrada inválida! Por favor, insira um número inteiro.");
+            scanner.nextLine(); // Limpar o buffer
+            return;
+        }
+
+        reservaController.editarReserva(idReserva, novoNome, novoNumeroPessoas);
+
+        // Obter o dia atual e a unidade de tempo atual da simulação
+        int currentDay = simulacaoDiaController.getDiaAtual();
+        int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+        // Criação do log
+        String logType = "ACTION";
+        String logDescription = String.format("Reserva editada: ID %d, Novo Nome: %s, Novo Número de Pessoas: %d", idReserva, novoNome, novoNumeroPessoas);
+
+        logsController.criarLog(currentDay, currentHour, logType, logDescription);
+
+        System.out.println("Reserva editada com sucesso!");
     }
 }

@@ -114,6 +114,7 @@ public class ReservaController {
         }
         return Arrays.copyOf(reservasDisponiveis, index);
     }
+
     public void criarReserva(String nome, int numeroPessoas, int tempoChegada) {
         int proximoId = reservaDAL.obterProximoId(reservas);
         Reserva novaReserva = new Reserva(proximoId, nome, numeroPessoas, tempoChegada);
@@ -128,6 +129,7 @@ public class ReservaController {
         }
         System.out.println("Não é possível adicionar mais reservas. Capacidade máxima atingida.");
     }
+
     public Reserva[] listarReservasNaoAssociadas(int tempoAtual) {
         Configuracao configuracao = configuracaoController.getConfiguracao();
         int tempoLimite = configuracao.getUnidadesTempoIrParaMesa();
@@ -152,4 +154,29 @@ public class ReservaController {
         }
 
         return reservasNaoAssociadas;
-    }}
+    }
+
+    public void editarReserva(int id, String novoNome, int novoNumeroPessoas) {
+        Reserva reserva = getReservaById(id);
+        if (reserva != null) {
+            reserva.setNome(novoNome);
+            reserva.setNumeroPessoas(novoNumeroPessoas);
+            reservaDAL.salvarReservas(reservas);
+            System.out.println("Reserva editada com sucesso!");
+        } else {
+            System.out.println("Reserva não encontrada.");
+        }
+    }
+
+    public void removerReserva(int id) {
+        for (int i = 0; i < reservas.length; i++) {
+            if (reservas[i] != null && reservas[i].getId() == id) {
+                reservas[i] = null;
+                reservaDAL.salvarReservas(reservas);
+                System.out.println("Reserva removida com sucesso!");
+                return;
+            }
+        }
+        System.out.println("Reserva não encontrada.");
+    }
+}
