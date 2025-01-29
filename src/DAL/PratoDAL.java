@@ -19,20 +19,44 @@ public class PratoDAL {
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line;
             int index = 0;
+            int proximoId = 1;
             while ((line = br.readLine()) != null && index < MAX_PRATOS) {
                 String[] parts = line.split(";");
-                if (parts.length == 7) {
+                if (parts.length == 7 || parts.length == 6) {
                     try {
-                        Integer id = Integer.parseInt(parts[0].trim());
-                        String nome = parts[1].trim();
-                        String categoria = parts[2].trim();
-                        double precoCusto = Double.parseDouble(parts[3].trim());
-                        double precoVenda = Double.parseDouble(parts[4].trim());
-                        int tempoPreparacao = Integer.parseInt(parts[5].trim());
-                        boolean disponivel = Boolean.parseBoolean(parts[6].trim());
+                        int id;
+                        String nome;
+                        String categoria;
+                        double precoCusto;
+                        double precoVenda;
+                        int tempoPreparacao;
+                        boolean disponivel;
+
+                        if (parts.length == 7) {
+                            id = Integer.parseInt(parts[0].trim());
+                            nome = parts[1].trim();
+                            categoria = parts[2].trim();
+                            precoCusto = Double.parseDouble(parts[3].trim());
+                            precoVenda = Double.parseDouble(parts[4].trim());
+                            tempoPreparacao = Integer.parseInt(parts[5].trim());
+                            disponivel = Boolean.parseBoolean(parts[6].trim());
+                        } else {
+                            id = proximoId++;
+                            nome = parts[0].trim();
+                            categoria = parts[1].trim();
+                            precoCusto = Double.parseDouble(parts[2].trim());
+                            precoVenda = Double.parseDouble(parts[3].trim());
+                            tempoPreparacao = Integer.parseInt(parts[4].trim());
+                            disponivel = Boolean.parseBoolean(parts[5].trim());
+                        }
+
+                        if (id >= proximoId) {
+                            proximoId = id + 1;
+                        }
+
                         pratos[index++] = new Prato(id, nome, categoria, precoCusto, precoVenda, tempoPreparacao, disponivel);
                     } catch (NumberFormatException e) {
-                        System.err.println("Linha mal configurada ignorada: " + line);
+                        System.err.println("Erro na formatação dos números na linha: " + line);
                     }
                 } else {
                     System.err.println("Linha mal configurada ignorada: " + line);

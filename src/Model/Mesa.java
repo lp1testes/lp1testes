@@ -8,7 +8,11 @@ public class Mesa {
 
     public Mesa() {
     }
-
+    public Mesa(int id, int capacidade) {
+        this.id = id;
+        this.capacidade = capacidade;
+        this.ocupada = false; // valor padrão
+    }
     public Mesa(Integer id, int capacidade, boolean ocupada) {
         this.id = id;
         this.capacidade = capacidade;
