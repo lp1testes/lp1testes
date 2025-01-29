@@ -18,12 +18,11 @@ public class MenuPrincipalView {
         this.scanner = new Scanner(System.in);
         this.configuracaoController = ConfiguracaoController.getInstancia();
         this.simulacaoDiaController = SimulacaoDiaController.getInstance();
-        this.reservaController = new ReservaController(configuracaoController.getConfiguracao());
-        this.mesaController = MesaController.getInstance(configuracaoController.getConfiguracao(), reservaController);
+        Configuracao configuracao = configuracaoController.getConfiguracao();
+        this.reservaController = ReservaController.getInstance(configuracao);
+        this.mesaController = MesaController.getInstance(configuracao, reservaController);
         this.pratoController = new PratoController();
         this.menuController = new MenuController();
-
-        simulacaoDiaController.setReservaController(reservaController);
 
         verificarUnidadeTempo();
     }

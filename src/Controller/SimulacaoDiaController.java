@@ -22,7 +22,8 @@ public class SimulacaoDiaController {
         this.reservasNotificadas = new HashSet<>();
 
         Configuracao configuracao = configuracaoController.getConfiguracao();
-        this.mesaController = MesaController.getInstance(configuracao, null);
+        this.reservaController = ReservaController.getInstance(configuracao);
+        this.mesaController = MesaController.getInstance(configuracao, reservaController);
     }
 
     public static synchronized SimulacaoDiaController getInstance() {
@@ -30,11 +31,6 @@ public class SimulacaoDiaController {
             instance = new SimulacaoDiaController();
         }
         return instance;
-    }
-
-    public void setReservaController(ReservaController reservaController) {
-        this.reservaController = reservaController;
-        this.mesaController.setReservaController(reservaController);
     }
 
     public int getDiaAtual() {
@@ -86,6 +82,7 @@ public class SimulacaoDiaController {
         StringBuilder verificacoes = new StringBuilder();
         int tempoAtual = simulacaoDia.getUnidadeTempoAtual();
         Configuracao configuracao = configuracaoController.getConfiguracao();
+        int unitsForAssignment = configuracao.getUnidadesTempoIrParaMesa();
 
         for (Mesa mesa : mesaController.getMesas()) {
             if (mesa == null || !mesa.isOcupada()) continue;
@@ -105,6 +102,7 @@ public class SimulacaoDiaController {
                 if (mesaController.tempoPedidoUltrapassado(mesa.getId(), tempoAtual) && (pedido == null || (pedido.getPratos().isEmpty() && pedido.getMenus().isEmpty()))) {
                     prejuizoTotal += reserva.getNumeroPessoas() * configuracao.getCustoClienteNaoAtendido();
                     mesaController.removerReservaDaMesa(mesa.getId());
+                    mesaController.marcarMesaComoDisponivel(mesa.getId());
                     verificacoes.append("\nTempo limite para registrar o pedido expirou. Perdas Totais: ").append(reserva.getNumeroPessoas() * configuracao.getCustoClienteNaoAtendido());
                 }
             }
@@ -115,9 +113,18 @@ public class SimulacaoDiaController {
             Reserva[] reservasNaoAssociadas = reservaController.listarReservasNaoAssociadas(tempoAtual);
             for (Reserva reserva : reservasNaoAssociadas) {
                 if (!reservasNotificadas.contains(reserva.getId())) { // Verifica se a reserva já foi notificada
-                    prejuizoTotal += reserva.getNumeroPessoas() * configuracao.getCustoClienteNaoAtendido();
-                    verificacoes.append("\nReserva ").append(reserva.getId()).append(" não foi associada a nenhuma mesa. Clientes foram embora. Perdas Totais: ").append(reserva.getNumeroPessoas() * configuracao.getCustoClienteNaoAtendido());
-                    reservasNotificadas.add(reserva.getId()); // Adiciona a reserva à lista de notificadas
+                    int tempoChegada = reserva.getTempoChegada();
+                    int tempoLimite = tempoChegada + unitsForAssignment;
+
+                    if (tempoAtual <= tempoLimite) {
+                        // Reserva ainda dentro do tempo limite para ser associada a uma mesa
+                        verificacoes.append("\nReserva ").append(reserva.getId()).append(" ainda está dentro do tempo limite para ser associada a uma mesa.");
+                    } else {
+                        // Tempo limite para associação expirou
+                        prejuizoTotal += reserva.getNumeroPessoas() * configuracao.getCustoClienteNaoAtendido();
+                        verificacoes.append("\nTempo limite para associação expirou. Reserva ").append(reserva.getId()).append(" não foi associada a nenhuma mesa. Clientes foram embora. Perdas Totais: ").append(reserva.getNumeroPessoas() * configuracao.getCustoClienteNaoAtendido());
+                        reservasNotificadas.add(reserva.getId()); // Adiciona a reserva à lista de notificadas
+                    }
                 }
             }
         }
