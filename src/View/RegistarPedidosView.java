@@ -88,9 +88,38 @@ public class RegistarPedidosView {
         int currentDay = simulacaoDiaController.getDiaAtual();
         int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
 
+        // Obter o pedido associado à mesa
+        Pedido pedido = mesaController.getPedidoByMesa(idMesa);
+        if (pedido == null) {
+            System.out.println("Pedido não encontrado para a mesa " + idMesa);
+            return;
+        }
+
+        // Criar a lista de pratos consumidos
+        StringBuilder pratosConsumidos = new StringBuilder();
+        for (Prato prato : pedido.getPratos()) {
+            if (prato != null) {
+                pratosConsumidos.append(prato.getNome()).append(", ");
+            }
+        }
+
+        // Adicionar pratos dos menus ao log
+        for (Menu menu : pedido.getMenus()) {
+            for (Prato prato : menu.getPratos()) {
+                if (prato != null) {
+                    pratosConsumidos.append(prato.getNome()).append(", ");
+                }
+            }
+        }
+
+        // Remover a última vírgula e espaço, se houver
+        if (pratosConsumidos.length() > 0) {
+            pratosConsumidos.setLength(pratosConsumidos.length() - 2);
+        }
+
         // Criação do log
         String logType = "ACTION";
-        String logDescription = String.format("Pagamento efetuado para a mesa ID: %d", idMesa);
+        String logDescription = String.format("Pagamento efetuado para a mesa ID: %d. Pratos consumidos: %s", idMesa, pratosConsumidos.toString());
 
         logsController.criarLog(currentDay, currentHour, logType, logDescription);
     }

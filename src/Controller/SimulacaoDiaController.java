@@ -1,6 +1,9 @@
 package Controller;
 
 import Model.*;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
 import DAL.LogsDAL;
@@ -155,15 +158,31 @@ public class SimulacaoDiaController {
     }
 
     public String encerrarDia() {
+
+        // Calcular o lucro antes de encerrar o dia
+        double lucro = totalGanho - prejuizoTotal;
+
+        // Obter a data e hora do sistema
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedNow = now.format(formatter);
+
+        // Criar o log
+        int currentDay = simulacaoDia.getDia();
+        int currentHour = simulacaoDia.getUnidadeTempoAtual();
+        String logType = "FINANCE";
+        String logDescription = String.format("Dia encerrado. Data: %s, Perdas Totais: %.2f, Total Ganho: %.2f, Lucro: %.2f", formattedNow, prejuizoTotal, totalGanho, lucro);
+
+        Logs log = new Logs(currentDay, currentHour, logType, logDescription);
+        getLogsDAL().adicionarLog(log);
+
         simulacaoDia.setUnidadeTempoAtual(0);
         simulacaoDia.setAtivo(false);
 
         // Calcular o total ganho antes de encerrar o dia
         calcularTotalGanho();
 
-        // Calcular o lucro antes de encerrar o dia
-        double lucro = totalGanho - prejuizoTotal;
-        return "\nDia encerrado. Perdas Totais: " + prejuizoTotal + "\nTotal Ganho: " + totalGanho + "\nLucro: " + lucro;
+        return String.format("\nDia encerrado em %s. Perdas Totais: %.2f\nTotal Ganho: %.2f\nLucro: %.2f", formattedNow, prejuizoTotal, totalGanho, lucro);
     }
 
     public SimulacaoDia getSimulacaoDia() {
