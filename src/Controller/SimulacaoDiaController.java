@@ -1,10 +1,9 @@
 package Controller;
 import Model.*;
-import DAL.LogsDAL;
 import Model.Configuracao;
 import Model.SimulacaoDia;
-import Model.Logs;
-
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,13 +11,12 @@ public class SimulacaoDiaController {
     private static SimulacaoDiaController instance;
     private final SimulacaoDia simulacaoDia;
     private final ConfiguracaoController configuracaoController;
-    private ReservaController reservaController;
-    private LogsDAL logsDAL;
-    private MesaController mesaController;
+    private final ReservaController reservaController;
+    private final MesaController mesaController;
+    private LogsController logsController;
     private double prejuizoTotal;
     private double totalGanho;
     private Set<Integer> reservasNotificadas;
-
 
     private SimulacaoDiaController() {
         this.configuracaoController = ConfiguracaoController.getInstancia();
@@ -28,7 +26,9 @@ public class SimulacaoDiaController {
         this.reservasNotificadas = new HashSet<>();
 
         Configuracao configuracao = configuracaoController.getConfiguracao();
-        this.mesaController = MesaController.getInstance(configuracao, null);
+        this.reservaController = ReservaController.getInstance(configuracao);
+        this.mesaController = MesaController.getInstance(configuracao, reservaController);
+        this.logsController = LogsController.getInstance(); // Usando a instância Singleton
     }
 
     public static synchronized SimulacaoDiaController getInstance() {
@@ -36,18 +36,6 @@ public class SimulacaoDiaController {
             instance = new SimulacaoDiaController();
         }
         return instance;
-    }
-
-    private LogsDAL getLogsDAL() {
-        if (logsDAL == null) {
-            logsDAL = LogsDAL.getInstance();
-        }
-        return logsDAL;
-    }
-
-    public void setReservaController(ReservaController reservaController) {
-        this.reservaController = reservaController;
-        this.mesaController.setReservaController(reservaController);
     }
 
     public int getDiaAtual() {
@@ -69,7 +57,7 @@ public class SimulacaoDiaController {
 
         // Adicionar log para o novo dia
         Logs log = new Logs(novoDia, 1, "INFO", "Novo dia iniciado");
-        getLogsDAL().adicionarLog(log);
+        logsController.criarLog(log.getDay(), log.getHour(), log.getLogType(), log.getLogDescription());
 
         return "\n Novo dia iniciado. Dia: " + simulacaoDia.getDia() + ", Unidade de Tempo Atual: " + simulacaoDia.getUnidadeTempoAtual();
     }
@@ -81,6 +69,26 @@ public class SimulacaoDiaController {
         if (simulacaoDia.getUnidadeTempoAtual() + 1 > configuracaoController.getConfiguracao().getUnidadesTempoDia()) {
             return "\n O dia só tem " + configuracaoController.getConfiguracao().getUnidadesTempoDia() + " tempos, não podes avançar mais!";
         } else {
+            // Calcular o total faturado, total de gastos e lucro
+            calcularTotalGanho();
+            double lucro = totalGanho - prejuizoTotal;
+
+            // Obter a data e hora do sistema
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            String formattedNow = now.format(formatter);
+
+            // Criar o log
+            int currentDay = simulacaoDia.getDia();
+            int currentHour = simulacaoDia.getUnidadeTempoAtual();
+            String logType = "FINANCE";
+            String logDescription = String.format("Avanço de unidade de tempo. Data: %s, Dia: %d, Unidade de Tempo Atual: %d, Perdas Totais: %.2f, Total Ganho: %.2f, Lucro: %.2f",
+                    formattedNow, currentDay, currentHour, prejuizoTotal, totalGanho, lucro);
+
+            Logs log = new Logs(currentDay, currentHour, logType, logDescription);
+            logsController.criarLog(log.getDay(), log.getHour(), log.getLogType(), log.getLogDescription());
+
+            // Avançar a unidade de tempo
             simulacaoDia.setUnidadeTempoAtual(simulacaoDia.getUnidadeTempoAtual() + 1);
             String verificacoes = verificarPagamentosEReservasExpiradas();
             return "\n Unidade de Tempo Avançada. Unidade de Tempo Atual: " + simulacaoDia.getUnidadeTempoAtual() + verificacoes + "\nPerdas Totais: " + prejuizoTotal;
@@ -103,6 +111,7 @@ public class SimulacaoDiaController {
         StringBuilder verificacoes = new StringBuilder();
         int tempoAtual = simulacaoDia.getUnidadeTempoAtual();
         Configuracao configuracao = configuracaoController.getConfiguracao();
+        int unitsForAssignment = configuracao.getUnidadesTempoIrParaMesa();
 
         for (Mesa mesa : mesaController.getMesas()) {
             if (mesa == null || !mesa.isOcupada()) continue;
@@ -122,6 +131,7 @@ public class SimulacaoDiaController {
                 if (mesaController.tempoPedidoUltrapassado(mesa.getId(), tempoAtual) && (pedido == null || (pedido.getPratos().isEmpty() && pedido.getMenus().isEmpty()))) {
                     prejuizoTotal += reserva.getNumeroPessoas() * configuracao.getCustoClienteNaoAtendido();
                     mesaController.removerReservaDaMesa(mesa.getId());
+                    mesaController.marcarMesaComoDisponivel(mesa.getId());
                     verificacoes.append("\nTempo limite para registrar o pedido expirou. Perdas Totais: ").append(reserva.getNumeroPessoas() * configuracao.getCustoClienteNaoAtendido());
                 }
             }
@@ -132,9 +142,18 @@ public class SimulacaoDiaController {
             Reserva[] reservasNaoAssociadas = reservaController.listarReservasNaoAssociadas(tempoAtual);
             for (Reserva reserva : reservasNaoAssociadas) {
                 if (!reservasNotificadas.contains(reserva.getId())) { // Verifica se a reserva já foi notificada
-                    prejuizoTotal += reserva.getNumeroPessoas() * configuracao.getCustoClienteNaoAtendido();
-                    verificacoes.append("\nReserva ").append(reserva.getId()).append(" não foi associada a nenhuma mesa. Clientes foram embora. Perdas Totais: ").append(reserva.getNumeroPessoas() * configuracao.getCustoClienteNaoAtendido());
-                    reservasNotificadas.add(reserva.getId()); // Adiciona a reserva à lista de notificadas
+                    int tempoChegada = reserva.getTempoChegada();
+                    int tempoLimite = tempoChegada + unitsForAssignment;
+
+                    if (tempoAtual <= tempoLimite) {
+                        // Reserva ainda dentro do tempo limite para ser associada a uma mesa
+                        verificacoes.append("\nReserva ").append(reserva.getId()).append(" ainda está dentro do tempo limite para ser associada a uma mesa.");
+                    } else {
+                        // Tempo limite para associação expirou
+                        prejuizoTotal += reserva.getNumeroPessoas() * configuracao.getCustoClienteNaoAtendido();
+                        verificacoes.append("\nTempo limite para associação expirou. Reserva ").append(reserva.getId()).append(" não foi associada a nenhuma mesa. Clientes foram embora. Perdas Totais: ").append(reserva.getNumeroPessoas() * configuracao.getCustoClienteNaoAtendido());
+                        reservasNotificadas.add(reserva.getId()); // Adiciona a reserva à lista de notificadas
+                    }
                 }
             }
         }
@@ -152,15 +171,36 @@ public class SimulacaoDiaController {
     }
 
     public String encerrarDia() {
+        // Calcular o lucro antes de encerrar o dia
+        double lucro = totalGanho - prejuizoTotal;
+
+        // Obter a data e hora do sistema
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedNow = now.format(formatter);
+
+        // Obter o número de pedidos atendidos e não atendidos
+        int pedidosAtendidos = mesaController.contarPedidosAtendidos();
+        int pedidosNaoAtendidos = mesaController.contarPedidosNaoAtendidos();
+
+        // Criar o log
+        int currentDay = simulacaoDia.getDia();
+        int currentHour = simulacaoDia.getUnidadeTempoAtual();
+        String logType = "FINANCE";
+        String logDescription = String.format("Dia encerrado. Data: %s, Perdas Totais: %.2f, Total Ganho: %.2f, Lucro: %.2f, Pedidos Atendidos: %d, Pedidos Não Atendidos: %d",
+                formattedNow, prejuizoTotal, totalGanho, lucro, pedidosAtendidos, pedidosNaoAtendidos);
+
+        Logs log = new Logs(currentDay, currentHour, logType, logDescription);
+        logsController.criarLog(log.getDay(), log.getHour(), log.getLogType(), log.getLogDescription());
+
         simulacaoDia.setUnidadeTempoAtual(0);
         simulacaoDia.setAtivo(false);
 
         // Calcular o total ganho antes de encerrar o dia
         calcularTotalGanho();
 
-        // Calcular o lucro antes de encerrar o dia
-        double lucro = totalGanho - prejuizoTotal;
-        return "\nDia encerrado. Perdas Totais: " + prejuizoTotal + "\nTotal Ganho: " + totalGanho + "\nLucro: " + lucro;
+        return String.format("\nDia encerrado em %s. Perdas Totais: %.2f\nTotal Ganho: %.2f\nLucro: %.2f\nPedidos Atendidos: %d\nPedidos Não Atendidos: %d",
+                formattedNow, prejuizoTotal, totalGanho, lucro, pedidosAtendidos, pedidosNaoAtendidos);
     }
 
     public SimulacaoDia getSimulacaoDia() {
@@ -174,6 +214,67 @@ public class SimulacaoDiaController {
             notificacoes.append(reservaController.verificarChegadaReservas(tempoAtual));
         }
         return notificacoes.toString();
+    }
+
+    public int calcularClientesAtendidos() {
+        int totalClientesAtendidos = 0;
+
+        // Percorrer todas as mesas para verificar os pedidos pagos
+        for (Mesa mesa : mesaController.getMesas()) {
+            if (mesa == null) continue;
+
+            Pedido pedido = mesaController.getPedidoByMesa(mesa.getId());
+            if (pedido != null && pedido.isPago()) {
+                Reserva reserva = mesaController.getClienteDaMesa(mesa.getId());
+                if (reserva != null) {
+                    totalClientesAtendidos += reserva.getNumeroPessoas();
+                }
+            }
+        }
+
+        return totalClientesAtendidos;
+    }
+
+    public int calcularClientesAtendidosPorDia(int dia) {
+        int totalClientesAtendidos = 0;
+
+        Logs[] logs = logsController.obterTodosLogs();
+        for (Logs log : logs) {
+            if (log.getDay() == dia && log.getLogDescription().contains("Pagamento efetuado para a mesa")) {
+                String descricao = log.getLogDescription();
+                String[] partes = descricao.split("Pratos consumidos:");
+                if (partes.length > 1) {
+                    // Extrair o número de pessoas atendidas do log
+                    String numeroPessoasStr = partes[0].split("Número de Pessoas: ")[1].split(",")[0];
+                    int numeroPessoas = Integer.parseInt(numeroPessoasStr.trim());
+                    totalClientesAtendidos += numeroPessoas;
+                }
+            }
+        }
+
+        return totalClientesAtendidos;
+    }
+
+    public int calcularClientesAtendidosPorPeriodo(int diaInicio, int horaInicio, int diaFim, int horaFim) {
+        int totalClientesAtendidos = 0;
+
+        Logs[] logs = logsController.obterTodosLogs();
+        for (Logs log : logs) {
+            if ((log.getDay() > diaInicio || (log.getDay() == diaInicio && log.getHour() >= horaInicio)) &&
+                    (log.getDay() < diaFim || (log.getDay() == diaFim && log.getHour() <= horaFim)) &&
+                    log.getLogDescription().contains("Pagamento efetuado para a mesa")) {
+                String descricao = log.getLogDescription();
+                String[] partes = descricao.split("Pratos consumidos:");
+                if (partes.length > 1) {
+                    // Extrair o número de pessoas atendidas do log
+                    String numeroPessoasStr = partes[0].split("Número de Pessoas: ")[1].split(",")[0];
+                    int numeroPessoas = Integer.parseInt(numeroPessoasStr.trim());
+                    totalClientesAtendidos += numeroPessoas;
+                }
+            }
+        }
+
+        return totalClientesAtendidos;
     }
 
     public boolean diaJaComecou() {

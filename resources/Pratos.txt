@@ -10,3 +10,9 @@
 10;bsf;entrada;30.0;40.0;5;true
 11;aa;sobremesa;30.0;40.0;9;false
 12;oo;entrada;9.0;11.0;9;true
+13;pratoa;entrada;10.0;20.0;1;true
+14;pratoaa;sobremesa;10.0;20.0;1;true
+15;aaaaa;sobremesa;4.0;3.0;1;true
+16;aaaa;sobremesa;4.0;5.0;1;true
+17;adasdasd;sobremesa;10.0;20.0;3;true
+18;pratoteste;sobremesa;30.0;50.0;1;true

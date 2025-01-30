@@ -1,2 +1,11 @@
-1;1;2025-01-28 17:02:18;INFO;Novo dia iniciado
-1;1;2025-01-28 17:02:22;ACTION;Mesa registrada: Capacidade 41
+1;1;2025-01-30 17:46:58;INFO;Novo dia iniciado
+1;1;2025-01-30 17:47:15;INFO;Estado das mesas verificado
+1;1;2025-01-30 17:47:24;ACTION;Clientes da reserva Manuel Jesus (ID: 1) foram atribuídos à mesa 17. Número de Pessoas: 5, Tempo de Chegada: 1
+1;1;2025-01-30 17:47:31;INFO;Estado das mesas verificado
+1;1;2025-01-30 17:47:36;ACTION;Clientes da reserva Manuel Jesus (ID: 1) foram atribuídos à mesa 16. Número de Pessoas: 5, Tempo de Chegada: 1
+1;1;2025-01-30 17:47:46;FINANCE;Avanço de unidade de tempo. Data: 2025-01-30 17:47:46, Dia: 1, Unidade de Tempo Atual: 1, Perdas Totais: 0,00, Total Ganho: 0,00, Lucro: 0,00
+1;2;2025-01-30 17:48:01;ACTION;Pedido associado à mesa ID: 16, Reserva: Manuel Jesus (ID da Reserva: 1)
+1;2;2025-01-30 17:48:07;FINANCE;Avanço de unidade de tempo. Data: 2025-01-30 17:48:07, Dia: 1, Unidade de Tempo Atual: 2, Perdas Totais: 0,00, Total Ganho: 0,00, Lucro: 0,00
+1;3;2025-01-30 17:48:08;FINANCE;Avanço de unidade de tempo. Data: 2025-01-30 17:48:08, Dia: 1, Unidade de Tempo Atual: 3, Perdas Totais: 24,00, Total Ganho: 0,00, Lucro: -24,00
+1;4;2025-01-30 17:48:09;FINANCE;Avanço de unidade de tempo. Data: 2025-01-30 17:48:09, Dia: 1, Unidade de Tempo Atual: 4, Perdas Totais: 32,00, Total Ganho: 0,00, Lucro: -32,00
+1;5;2025-01-30 17:48:16;ACTION;Pagamento efetuado para a mesa ID: 16. Número de Pessoas: 5, Pratos consumidos: Atum com Natas, Atum com Natas, Natas do ceu, Natas do ceu, Atum com Natas

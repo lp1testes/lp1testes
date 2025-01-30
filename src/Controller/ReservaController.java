@@ -10,17 +10,26 @@ import java.util.Comparator;
 public class ReservaController {
 
     private Reserva[] reservas;
+
+    private static ReservaController instance;
     private ReservaDAL reservaDAL;
     private Configuracao configuracao;
     private MesaController mesaController;
     private ConfiguracaoController configuracaoController;
 
-    public ReservaController(Configuracao configuracao) {
+    private ReservaController(Configuracao configuracao) {
         this.configuracao = configuracao;
-        reservaDAL = new ReservaDAL(configuracao);
-        reservas = reservaDAL.carregarReservas();
-        mesaController = MesaController.getInstance(configuracao, this);
-        configuracaoController = ConfiguracaoController.getInstancia();
+        this.reservaDAL = new ReservaDAL(configuracao);
+        this.reservas = reservaDAL.carregarReservas();
+        this.configuracaoController = ConfiguracaoController.getInstancia();
+        this.mesaController = MesaController.getInstance(configuracao, this);
+    }
+    // Método para obter a instância Singleton
+    public static synchronized ReservaController getInstance(Configuracao configuracao) {
+        if (instance == null) {
+            instance = new ReservaController(configuracao);
+        }
+        return instance;
     }
 
     public Reserva[] getReservas() {
@@ -118,13 +127,15 @@ public class ReservaController {
         }
         System.out.println("Não é possível adicionar mais reservas. Capacidade máxima atingida.");
     }
+
     public Reserva[] listarReservasNaoAssociadas(int tempoAtual) {
-        int tempoLimite = configuracaoController.getConfiguracao().getUnidadesTempoIrParaMesa();
+        Configuracao configuracao = configuracaoController.getConfiguracao();
+        int tempoLimite = configuracao.getUnidadesTempoIrParaMesa();
         int count = 0;
 
         // Primeiro, contar o número de reservas não associadas
         for (Reserva reserva : reservas) {
-            if (reserva != null && !reserva.isAssociada() && tempoAtual > reserva.getTempoChegada() + tempoLimite) {
+            if (reserva != null && !reserva.isAssociada() && (tempoAtual > reserva.getTempoChegada() + tempoLimite)) {
                 count++;
             }
         }
@@ -135,13 +146,14 @@ public class ReservaController {
 
         // Preencher o array com as reservas não associadas
         for (Reserva reserva : reservas) {
-            if (reserva != null && !reserva.isAssociada() && tempoAtual > reserva.getTempoChegada() + tempoLimite) {
+            if (reserva != null && !reserva.isAssociada() && (tempoAtual > reserva.getTempoChegada() + tempoLimite)) {
                 reservasNaoAssociadas[index++] = reserva;
             }
         }
 
         return reservasNaoAssociadas;
     }
+
     public void editarReserva(int id, String novoNome, int novoNumeroPessoas) {
         Reserva reserva = getReservaById(id);
         if (reserva != null) {

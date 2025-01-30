@@ -292,23 +292,22 @@ public class MesaController {
         scanner.nextLine(); // Limpar o buffer
 
         Menu menuSelecionado = menuController.getMenuById(idMenu);
-        boolean todosPratosDisponiveis = true;
         if (menuSelecionado != null) {
+            int maiorTempoPreparacao = 0;
             for (Prato prato : menuSelecionado.getPratos()) {
-                if (prato == null || !prato.isDisponivel() || prato.getTempoPreparacao() > tempoRestanteDia) {
-                    todosPratosDisponiveis = false;
-                    break;
+                if (prato != null && prato.getTempoPreparacao() > maiorTempoPreparacao) {
+                    maiorTempoPreparacao = prato.getTempoPreparacao();
                 }
             }
-        }
 
-        if (menuSelecionado != null && todosPratosDisponiveis) {
-            pedido.adicionarMenu(menuSelecionado);
-            System.out.printf("Menu %d adicionado ao pedido.%n", menuSelecionado.getId());
-            return true;
-        } else if (menuSelecionado != null) {
-            System.out.println("Menu contém pratos que ultrapassam o tempo de preparação disponível no dia.");
-            return false;
+            if (maiorTempoPreparacao <= tempoRestanteDia) {
+                pedido.adicionarMenu(menuSelecionado);
+                System.out.printf("Menu %d adicionado ao pedido.%n", menuSelecionado.getId());
+                return true;
+            } else {
+                System.out.println("Menu contém pratos que ultrapassam o tempo de preparação disponível no dia.");
+                return false;
+            }
         } else {
             System.out.println("Menu inválido.");
             return false;
@@ -485,5 +484,24 @@ public class MesaController {
         }
         return null;
     }
+    public int contarPedidosAtendidos() {
+        int count = 0;
+        for (Pedido pedido : pedidos) {
+            if (pedido.isPago()) {
+                count++;
+            }
+        }
+        return count;
+    }
 
+    public int contarPedidosNaoAtendidos() {
+        int count = 0;
+        for (Pedido pedido : pedidos) {
+            if (!pedido.isPago()) {
+                count++;
+            }
+        }
+        return count;
+    }
 }
+

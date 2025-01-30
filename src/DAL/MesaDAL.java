@@ -28,11 +28,11 @@ public class MesaDAL {
             int index = 0;
             while ((line = br.readLine()) != null && index < MAX_MESAS) {
                 String[] parts = line.split(configuracao.getSeparadorFicheiros());
-                if (parts.length == 3) {
+                if (parts.length >= 2) {
                     try {
-                        Integer id = Integer.parseInt(parts[0].trim());
+                        int id = Integer.parseInt(parts[0].trim());
                         int capacidade = Integer.parseInt(parts[1].trim());
-                        boolean ocupada = Boolean.parseBoolean(parts[2].trim());
+                        boolean ocupada = parts.length == 3 && Boolean.parseBoolean(parts[2].trim());
                         mesas[index++] = new Mesa(id, capacidade, ocupada);
                     } catch (NumberFormatException e) {
                         System.err.println("Mesa mal configurada ignorada: " + line);

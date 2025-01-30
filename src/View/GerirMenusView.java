@@ -16,7 +16,7 @@ public class GerirMenusView {
     public GerirMenusView() {
         pratoController = new PratoController();
         menuController = new MenuController();
-        logsController = new LogsController();
+        logsController = LogsController.getInstance();
         simulacaoDiaController = SimulacaoDiaController.getInstance();
     }
 

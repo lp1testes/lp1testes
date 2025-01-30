@@ -23,7 +23,7 @@ public class GerirMesasView {
         this.reservaController = reservaController;
         this.simulacaoDiaController = simulacaoDiaController;
         this.configuracaoController = configuracaoController;
-        this.logsController = new LogsController();
+        this.logsController = LogsController.getInstance(); // Usando a instância Singleton
     }
 
     public void exibirMenuGestaoMesas(Scanner scanner) {

@@ -12,7 +12,7 @@ public class Reserva {
         this.nome = nome;
         this.numeroPessoas = numeroPessoas;
         this.tempoChegada = tempoChegada;
-        this.associada = false; // Inicialmente, a reserva não está associada
+        this.associada = false;
     }
 
     // Getters e Setters

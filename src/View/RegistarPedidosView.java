@@ -23,7 +23,7 @@ public class RegistarPedidosView {
         this.configuracaoController = configuracaoController;
         this.pratoController = pratoController;
         this.menuController = menuController;
-        this.logsController = new LogsController();
+        this.logsController = LogsController.getInstance();
     }
 
     public void exibirMenuRegistoPedidos(Scanner scanner) {
@@ -88,13 +88,49 @@ public class RegistarPedidosView {
         int currentDay = simulacaoDiaController.getDiaAtual();
         int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
 
-        // Criação do log
+        // Obter o pedido associado à mesa
+        Pedido pedido = mesaController.getPedidoByMesa(idMesa);
+        if (pedido == null) {
+            System.out.println("Pedido não encontrado para a mesa " + idMesa);
+            return;
+        }
+
+        // Obter a reserva associada ao pedido
+        Reserva reserva = mesaController.getClienteDaMesa(idMesa);
+        if (reserva == null) {
+            System.out.println("Reserva não encontrada para a mesa " + idMesa);
+            return;
+        }
+
+        // Criar a lista de pratos consumidos
+        StringBuilder pratosConsumidos = new StringBuilder();
+        for (Prato prato : pedido.getPratos()) {
+            if (prato != null) {
+                pratosConsumidos.append(prato.getNome()).append(", ");
+            }
+        }
+
+        // Adicionar pratos dos menus ao log
+        for (Menu menu : pedido.getMenus()) {
+            for (Prato prato : menu.getPratos()) {
+                if (prato != null) {
+                    pratosConsumidos.append(prato.getNome()).append(", ");
+                }
+            }
+        }
+
+        // Remover a última vírgula e espaço, se houver
+        if (pratosConsumidos.length() > 0) {
+            pratosConsumidos.setLength(pratosConsumidos.length() - 2);
+        }
+
+        // Criar o log com o número de pessoas
         String logType = "ACTION";
-        String logDescription = String.format("Pagamento efetuado para a mesa ID: %d", idMesa);
+        String logDescription = String.format("Pagamento efetuado para a mesa ID: %d. Número de Pessoas: %d, Pratos consumidos: %s",
+                idMesa, reserva.getNumeroPessoas(), pratosConsumidos.toString());
 
         logsController.criarLog(currentDay, currentHour, logType, logDescription);
     }
-
     private void associarPedido(Scanner scanner) {
         int tempoAtual = simulacaoDiaController.getUnidadeTempoAtual();
         int unidadesTempoParaPedido = configuracaoController.getConfiguracao().getUnidadesTempoParaPedido();

@@ -13,17 +13,20 @@ public class MenuPrincipalView {
     private final ReservaController reservaController;
     private final PratoController pratoController;
     private final MenuController menuController;
+    private final LogsController logsController;
+    private final DesempenhoFinanceiroController desempenhoFinanceiroController;
 
     public MenuPrincipalView() {
         this.scanner = new Scanner(System.in);
         this.configuracaoController = ConfiguracaoController.getInstancia();
         this.simulacaoDiaController = SimulacaoDiaController.getInstance();
-        this.reservaController = new ReservaController(configuracaoController.getConfiguracao());
-        this.mesaController = MesaController.getInstance(configuracaoController.getConfiguracao(), reservaController);
+        Configuracao configuracao = configuracaoController.getConfiguracao();
+        this.reservaController = ReservaController.getInstance(configuracao);
+        this.mesaController = MesaController.getInstance(configuracao, reservaController);
         this.pratoController = new PratoController();
         this.menuController = new MenuController();
-
-        simulacaoDiaController.setReservaController(reservaController);
+        this.logsController = LogsController.getInstance(); // Define o tamanho máximo de logs
+        this.desempenhoFinanceiroController = new DesempenhoFinanceiroController(logsController);
 
         verificarUnidadeTempo();
     }
@@ -55,10 +58,10 @@ public class MenuPrincipalView {
         GerirMesasView gerirMesasView = new GerirMesasView(mesaController, reservaController, simulacaoDiaController, configuracaoController);
         GerirMenusView gerirMenusView = new GerirMenusView();
         RegistarPedidosView registarPedidosView = new RegistarPedidosView(mesaController, reservaController, simulacaoDiaController, configuracaoController, pratoController, menuController);
-        ReservasView reservasView = new ReservasView(reservaController, gerirMesasView, simulacaoDiaController); // Corrigido aqui
+        ReservasView reservasView = new ReservasView(reservaController, gerirMesasView, simulacaoDiaController, logsController);
         ConfiguracoesView configuracoesView = new ConfiguracoesView();
         EstatisticasView estatisticasView = new EstatisticasView();
-        DesempenhoFinanceiroView desempenhoFinanceiroView = new DesempenhoFinanceiroView();
+        DesempenhoFinanceiroView desempenhoFinanceiroView = new DesempenhoFinanceiroView(desempenhoFinanceiroController);
         SimulacaoDiaView simulacaoDiaView = new SimulacaoDiaView(simulacaoDiaController);
         LogsView logsView = new LogsView();
 
