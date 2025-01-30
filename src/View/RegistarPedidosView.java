@@ -95,6 +95,13 @@ public class RegistarPedidosView {
             return;
         }
 
+        // Obter a reserva associada ao pedido
+        Reserva reserva = mesaController.getClienteDaMesa(idMesa);
+        if (reserva == null) {
+            System.out.println("Reserva não encontrada para a mesa " + idMesa);
+            return;
+        }
+
         // Criar a lista de pratos consumidos
         StringBuilder pratosConsumidos = new StringBuilder();
         for (Prato prato : pedido.getPratos()) {
@@ -117,13 +124,13 @@ public class RegistarPedidosView {
             pratosConsumidos.setLength(pratosConsumidos.length() - 2);
         }
 
-        // Criação do log
+        // Criar o log com o número de pessoas
         String logType = "ACTION";
-        String logDescription = String.format("Pagamento efetuado para a mesa ID: %d. Pratos consumidos: %s", idMesa, pratosConsumidos.toString());
+        String logDescription = String.format("Pagamento efetuado para a mesa ID: %d. Número de Pessoas: %d, Pratos consumidos: %s",
+                idMesa, reserva.getNumeroPessoas(), pratosConsumidos.toString());
 
         logsController.criarLog(currentDay, currentHour, logType, logDescription);
     }
-
     private void associarPedido(Scanner scanner) {
         int tempoAtual = simulacaoDiaController.getUnidadeTempoAtual();
         int unidadesTempoParaPedido = configuracaoController.getConfiguracao().getUnidadesTempoParaPedido();

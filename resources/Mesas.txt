@@ -1,6 +1,6 @@
 1;10;true
 2;27;true
-3;19;false
+3;19;true
 4;1;false
 5;25;true
 6;25;false
@@ -9,12 +9,12 @@
 9;24;false
 10;231;true
 11;31241;true
-12;32;false
+12;32;true
 13;321;false
 14;41;false
-15;312;false
-16;141;false
+15;312;true
+16;141;true
 17;1;false
-18;12;false
-19;12;false
+18;12;true
+19;12;true
 20;41;true

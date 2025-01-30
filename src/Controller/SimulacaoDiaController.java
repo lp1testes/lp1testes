@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
-import DAL.LogsDAL;
 
 public class SimulacaoDiaController {
     private static SimulacaoDiaController instance;
@@ -214,6 +213,67 @@ public class SimulacaoDiaController {
             notificacoes.append(reservaController.verificarChegadaReservas(tempoAtual));
         }
         return notificacoes.toString();
+    }
+
+    public int calcularClientesAtendidos() {
+        int totalClientesAtendidos = 0;
+
+        // Percorrer todas as mesas para verificar os pedidos pagos
+        for (Mesa mesa : mesaController.getMesas()) {
+            if (mesa == null) continue;
+
+            Pedido pedido = mesaController.getPedidoByMesa(mesa.getId());
+            if (pedido != null && pedido.isPago()) {
+                Reserva reserva = mesaController.getClienteDaMesa(mesa.getId());
+                if (reserva != null) {
+                    totalClientesAtendidos += reserva.getNumeroPessoas();
+                }
+            }
+        }
+
+        return totalClientesAtendidos;
+    }
+
+    public int calcularClientesAtendidosPorDia(int dia) {
+        int totalClientesAtendidos = 0;
+
+        Logs[] logs = logsController.obterTodosLogs();
+        for (Logs log : logs) {
+            if (log.getDay() == dia && log.getLogDescription().contains("Pagamento efetuado para a mesa")) {
+                String descricao = log.getLogDescription();
+                String[] partes = descricao.split("Pratos consumidos:");
+                if (partes.length > 1) {
+                    // Extrair o número de pessoas atendidas do log
+                    String numeroPessoasStr = partes[0].split("Número de Pessoas: ")[1].split(",")[0];
+                    int numeroPessoas = Integer.parseInt(numeroPessoasStr.trim());
+                    totalClientesAtendidos += numeroPessoas;
+                }
+            }
+        }
+
+        return totalClientesAtendidos;
+    }
+
+    public int calcularClientesAtendidosPorPeriodo(int diaInicio, int horaInicio, int diaFim, int horaFim) {
+        int totalClientesAtendidos = 0;
+
+        Logs[] logs = logsController.obterTodosLogs();
+        for (Logs log : logs) {
+            if ((log.getDay() > diaInicio || (log.getDay() == diaInicio && log.getHour() >= horaInicio)) &&
+                    (log.getDay() < diaFim || (log.getDay() == diaFim && log.getHour() <= horaFim)) &&
+                    log.getLogDescription().contains("Pagamento efetuado para a mesa")) {
+                String descricao = log.getLogDescription();
+                String[] partes = descricao.split("Pratos consumidos:");
+                if (partes.length > 1) {
+                    // Extrair o número de pessoas atendidas do log
+                    String numeroPessoasStr = partes[0].split("Número de Pessoas: ")[1].split(",")[0];
+                    int numeroPessoas = Integer.parseInt(numeroPessoasStr.trim());
+                    totalClientesAtendidos += numeroPessoas;
+                }
+            }
+        }
+
+        return totalClientesAtendidos;
     }
 
     public boolean diaJaComecou() {
