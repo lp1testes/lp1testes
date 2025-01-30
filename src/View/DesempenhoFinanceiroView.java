@@ -96,25 +96,29 @@ public class DesempenhoFinanceiroView {
     }
 
     private String obterPeriodo(Scanner scanner) {
-        System.out.print("Digite a hora inicial: ");
-        String horaInicio = scanner.nextLine();
+        System.out.print("Você quer procurar apenas pelo dia ou pelo período? (dia/periodo): ");
+        String escolha = scanner.nextLine().trim().toLowerCase();
 
-        System.out.print("Digite o dia inicial: ");
-        String diaInicio = scanner.nextLine();
+        if (escolha.equals("dia")) {
+            System.out.print("Digite o dia: ");
+            String dia = scanner.nextLine().trim();
+            return dia;
+        } else if (escolha.equals("periodo")) {
+            System.out.print("Digite a hora inicial: ");
+            String horaInicio = scanner.nextLine().trim();
 
-        System.out.print("Você quer inserir um período adicional? (s/n): ");
-        String resposta = scanner.nextLine();
+            System.out.print("Digite o dia inicial: ");
+            String diaInicio = scanner.nextLine().trim();
 
-        if (resposta.equalsIgnoreCase("s")) {
             System.out.print("Digite a hora final: ");
-            String horaFim = scanner.nextLine();
+            String horaFim = scanner.nextLine().trim();
 
             System.out.print("Digite o dia final: ");
-            String diaFim = scanner.nextLine();
+            String diaFim = scanner.nextLine().trim();
 
             return String.format("%s %s to %s %s", diaInicio, horaInicio, diaFim, horaFim);
         } else {
-            return String.format("%s %s", diaInicio, horaInicio);
-        }
+            System.out.println("Opção inválida! Tente novamente.");
+            return obterPeriodo(scanner); // Chama a função novamente em caso de entrada inválida
+        } }
     }
-}
