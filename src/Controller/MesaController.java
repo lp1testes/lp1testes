@@ -484,5 +484,24 @@ public class MesaController {
         }
         return null;
     }
+    public int contarPedidosAtendidos() {
+        int count = 0;
+        for (Pedido pedido : pedidos) {
+            if (pedido.isPago()) {
+                count++;
+            }
+        }
+        return count;
+    }
 
+    public int contarPedidosNaoAtendidos() {
+        int count = 0;
+        for (Pedido pedido : pedidos) {
+            if (!pedido.isPago()) {
+                count++;
+            }
+        }
+        return count;
+    }
 }
+

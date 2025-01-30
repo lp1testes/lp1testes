@@ -15,11 +15,11 @@ public class ReservasView {
     private SimulacaoDiaController simulacaoDiaController;
     private LogsController logsController;
 
-    public ReservasView(ReservaController reservaController, GerirMesasView gerirMesasView, SimulacaoDiaController simulacaoDiaController) {
+    public ReservasView(ReservaController reservaController, GerirMesasView gerirMesasView, SimulacaoDiaController simulacaoDiaController, LogsController logsController) {
         this.reservaController = reservaController;
         this.gerirMesasView = gerirMesasView;
         this.simulacaoDiaController = simulacaoDiaController;
-        this.logsController = new LogsController();
+        this.logsController = LogsController.getInstance();
     }
 
     public void exibirMenuReservas(Scanner scanner) {

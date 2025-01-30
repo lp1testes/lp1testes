@@ -13,7 +13,7 @@ public class LogsView {
     private LogsController logsController;
 
     public LogsView() {
-        logsController = new LogsController();
+        this.logsController = new LogsController(500);
     }
 
     public void exibirMenuLogsEventos(Scanner scanner) {

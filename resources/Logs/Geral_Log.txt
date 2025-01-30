@@ -1,3 +1,10 @@
 0;0;2025-01-28 16:58:09;ACTION;Mesa registrada: Capacidade 12
 0;0;2025-01-28 17:00:05;ACTION;Mesa registrada: Capacidade 12
 1;0;2025-01-29 21:07:24;FINANCE;Dia encerrado. Data: 2025-01-29 21:07:24, Perdas Totais: 60,00, Total Ganho: 0,00, Lucro: -60,00
+0;0;2025-01-29 23:27:46;ACTION;Prato criado: pratoa, Categoria: entrada, Custo: 10,00, Venda: 20,00, Tempo: 1, Disponível: true
+1;10;2025-01-29 23:32:10;INFO;Primeiro log
+1;11;2025-01-29 23:32:10;ERROR;Segundo log
+1;12;2025-01-29 23:32:10;DEBUG;Terceiro log
+0;0;2025-01-29 23:33:00;ACTION;Prato criado: pratoaa, Categoria: sobremesa, Custo: 10,00, Venda: 20,00, Tempo: 1, Disponível: true
+0;0;2025-01-29 23:51:29;ACTION;Prato criado: aaaa, Categoria: sobremesa, Custo: 4,00, Venda: 5,00, Tempo: 1, Disponível: true
+0;0;2025-01-29 23:58:38;ACTION;Prato criado: adasdasd, Categoria: sobremesa, Custo: 10,00, Venda: 20,00, Tempo: 3, Disponível: true

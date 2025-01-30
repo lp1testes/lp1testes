@@ -32,3 +32,75 @@
 1;1;2025-01-29 21:07:15;INFO;Novo dia iniciado
 1;1;2025-01-29 21:11:46;INFO;Novo dia iniciado
 1;10;2025-01-29 21:11:59;FINANCE;Dia encerrado. Data: 2025-01-29 21:11:59, Perdas Totais: 60,00, Total Ganho: 0,00, Lucro: -60,00
+1;1;2025-01-29 22:33:44;INFO;Novo dia iniciado
+1;1;2025-01-29 22:33:46;FINANCE;Avanço de unidade de tempo. Data: 2025-01-29 22:33:46, Dia: 1, Unidade de Tempo Atual: 1, Perdas Totais: 0,00, Total Ganho: 0,00, Lucro: 0,00
+1;1;2025-01-29 22:38:52;INFO;Novo dia iniciado
+1;1;2025-01-29 22:39:33;INFO;Estado das mesas verificado
+1;1;2025-01-29 22:39:39;ACTION;Clientes da reserva Manuel Jesus (ID: 1) foram atribuídos à mesa 1. Número de Pessoas: 5, Tempo de Chegada: 1
+1;1;2025-01-29 22:39:43;FINANCE;Avanço de unidade de tempo. Data: 2025-01-29 22:39:43, Dia: 1, Unidade de Tempo Atual: 1, Perdas Totais: 0,00, Total Ganho: 0,00, Lucro: 0,00
+1;2;2025-01-29 22:40:01;ACTION;Pedido associado à mesa ID: 1, Reserva: Manuel Jesus (ID da Reserva: 1)
+1;2;2025-01-29 22:40:44;INFO;Estado das mesas verificado
+1;2;2025-01-29 22:40:48;ACTION;Clientes da reserva Maria José (ID: 2) foram atribuídos à mesa 10. Número de Pessoas: 2, Tempo de Chegada: 1
+1;2;2025-01-29 22:41:01;FINANCE;Avanço de unidade de tempo. Data: 2025-01-29 22:41:01, Dia: 1, Unidade de Tempo Atual: 2, Perdas Totais: 0,00, Total Ganho: 0,00, Lucro: 0,00
+1;3;2025-01-29 22:41:40;FINANCE;Avanço de unidade de tempo. Data: 2025-01-29 22:41:40, Dia: 1, Unidade de Tempo Atual: 3, Perdas Totais: 20,00, Total Ganho: 0,00, Lucro: -20,00
+1;4;2025-01-29 22:41:42;FINANCE;Avanço de unidade de tempo. Data: 2025-01-29 22:41:42, Dia: 1, Unidade de Tempo Atual: 4, Perdas Totais: 28,00, Total Ganho: 0,00, Lucro: -28,00
+1;5;2025-01-29 22:41:58;ACTION;Pagamento efetuado para a mesa ID: 1. Pratos consumidos: Atum com Natas, Atum com Natas, Natas do ceu, Natas do ceu, Natas do ceu
+1;5;2025-01-29 22:42:14;FINANCE;Avanço de unidade de tempo. Data: 2025-01-29 22:42:14, Dia: 1, Unidade de Tempo Atual: 5, Perdas Totais: 28,00, Total Ganho: 45,00, Lucro: 17,00
+1;6;2025-01-29 22:42:15;FINANCE;Avanço de unidade de tempo. Data: 2025-01-29 22:42:15, Dia: 1, Unidade de Tempo Atual: 6, Perdas Totais: 32,00, Total Ganho: 45,00, Lucro: 13,00
+1;7;2025-01-29 22:42:16;FINANCE;Avanço de unidade de tempo. Data: 2025-01-29 22:42:16, Dia: 1, Unidade de Tempo Atual: 7, Perdas Totais: 32,00, Total Ganho: 45,00, Lucro: 13,00
+1;8;2025-01-29 22:42:16;FINANCE;Avanço de unidade de tempo. Data: 2025-01-29 22:42:16, Dia: 1, Unidade de Tempo Atual: 8, Perdas Totais: 46,00, Total Ganho: 45,00, Lucro: -1,00
+1;9;2025-01-29 22:42:17;FINANCE;Avanço de unidade de tempo. Data: 2025-01-29 22:42:17, Dia: 1, Unidade de Tempo Atual: 9, Perdas Totais: 46,00, Total Ganho: 45,00, Lucro: -1,00
+1;10;2025-01-29 22:42:20;FINANCE;Dia encerrado. Data: 2025-01-29 22:42:20, Perdas Totais: 46,00, Total Ganho: 45,00, Lucro: -1,00, Pedidos Atendidos: 1, Pedidos Não Atendidos: 0
+1;1;2025-01-29 23:12:07;INFO;Novo dia iniciado
+1;1;2025-01-29 23:12:16;INFO;Estado das mesas verificado
+1;1;2025-01-29 23:12:20;ACTION;Clientes da reserva Manuel Jesus (ID: 1) foram atribuídos à mesa 2. Número de Pessoas: 5, Tempo de Chegada: 1
+1;1;2025-01-29 23:12:32;FINANCE;Avanço de unidade de tempo. Data: 2025-01-29 23:12:32, Dia: 1, Unidade de Tempo Atual: 1, Perdas Totais: 0,00, Total Ganho: 0,00, Lucro: 0,00
+1;2;2025-01-29 23:12:53;ACTION;Pedido associado à mesa ID: 2, Reserva: Manuel Jesus (ID da Reserva: 1)
+1;2;2025-01-29 23:13:08;INFO;Estado das mesas verificado
+1;2;2025-01-29 23:13:13;ACTION;Clientes da reserva Maria José (ID: 2) foram atribuídos à mesa 20. Número de Pessoas: 2, Tempo de Chegada: 1
+1;2;2025-01-29 23:13:20;FINANCE;Avanço de unidade de tempo. Data: 2025-01-29 23:13:20, Dia: 1, Unidade de Tempo Atual: 2, Perdas Totais: 0,00, Total Ganho: 0,00, Lucro: 0,00
+1;3;2025-01-29 23:13:54;FINANCE;Avanço de unidade de tempo. Data: 2025-01-29 23:13:54, Dia: 1, Unidade de Tempo Atual: 3, Perdas Totais: 20,00, Total Ganho: 0,00, Lucro: -20,00
+1;4;2025-01-29 23:13:55;FINANCE;Avanço de unidade de tempo. Data: 2025-01-29 23:13:55, Dia: 1, Unidade de Tempo Atual: 4, Perdas Totais: 28,00, Total Ganho: 0,00, Lucro: -28,00
+1;5;2025-01-29 23:14:16;FINANCE;Avanço de unidade de tempo. Data: 2025-01-29 23:14:16, Dia: 1, Unidade de Tempo Atual: 5, Perdas Totais: 28,00, Total Ganho: 0,00, Lucro: -28,00
+1;6;2025-01-29 23:14:43;INFO;Pedidos atendidos listados para a mesa ID: 1
+1;6;2025-01-29 23:15:11;ACTION;Pagamento efetuado para a mesa ID: 2. Pratos consumidos: Atum com Natas, Bacalhau, Natas do ceu, Bife, Natas do ceu
+1;6;2025-01-29 23:15:20;FINANCE;Dia encerrado. Data: 2025-01-29 23:15:20, Perdas Totais: 32,00, Total Ganho: 0,00, Lucro: -32,00, Pedidos Atendidos: 1, Pedidos Não Atendidos: 0
+1;1;2025-01-29 23:38:12;INFO;Novo dia iniciado
+1;1;2025-01-29 23:38:56;ACTION;Prato criado: aaaaa, Categoria: sobremesa, Custo: 4,00, Venda: 3,00, Tempo: 1, Disponível: true
+1;1;2025-01-29 23:59:27;INFO;Novo dia iniciado
+1;1;2025-01-29 23:59:39;ACTION;Prato criado: pratoteste, Categoria: sobremesa, Custo: 30,00, Venda: 50,00, Tempo: 1, Disponível: true
+1;1;2025-01-30 00:00:58;INFO;Estado das mesas verificado
+1;1;2025-01-30 00:01:05;ACTION;Clientes da reserva Maria José (ID: 2) foram atribuídos à mesa 5. Número de Pessoas: 2, Tempo de Chegada: 1
+1;1;2025-01-30 00:01:17;FINANCE;Avanço de unidade de tempo. Data: 2025-01-30 00:01:17, Dia: 1, Unidade de Tempo Atual: 1, Perdas Totais: 0,00, Total Ganho: 0,00, Lucro: 0,00
+1;2;2025-01-30 00:01:40;ACTION;Pedido associado à mesa ID: 5, Reserva: Maria José (ID da Reserva: 2)
+1;2;2025-01-30 00:01:44;FINANCE;Avanço de unidade de tempo. Data: 2025-01-30 00:01:44, Dia: 1, Unidade de Tempo Atual: 2, Perdas Totais: 0,00, Total Ganho: 0,00, Lucro: 0,00
+1;3;2025-01-30 00:01:44;FINANCE;Avanço de unidade de tempo. Data: 2025-01-30 00:01:44, Dia: 1, Unidade de Tempo Atual: 3, Perdas Totais: 30,00, Total Ganho: 0,00, Lucro: -30,00
+1;4;2025-01-30 00:01:45;FINANCE;Avanço de unidade de tempo. Data: 2025-01-30 00:01:45, Dia: 1, Unidade de Tempo Atual: 4, Perdas Totais: 38,00, Total Ganho: 0,00, Lucro: -38,00
+1;5;2025-01-30 00:01:46;FINANCE;Avanço de unidade de tempo. Data: 2025-01-30 00:01:46, Dia: 1, Unidade de Tempo Atual: 5, Perdas Totais: 38,00, Total Ganho: 0,00, Lucro: -38,00
+1;6;2025-01-30 00:02:09;FINANCE;Dia encerrado. Data: 2025-01-30 00:02:09, Perdas Totais: 56,00, Total Ganho: 0,00, Lucro: -56,00, Pedidos Atendidos: 0, Pedidos Não Atendidos: 1
+1;1;2025-01-30 00:06:03;INFO;Novo dia iniciado
+1;1;2025-01-30 00:06:04;FINANCE;Avanço de unidade de tempo. Data: 2025-01-30 00:06:04, Dia: 1, Unidade de Tempo Atual: 1, Perdas Totais: 0,00, Total Ganho: 0,00, Lucro: 0,00
+1;2;2025-01-30 00:06:04;FINANCE;Avanço de unidade de tempo. Data: 2025-01-30 00:06:04, Dia: 1, Unidade de Tempo Atual: 2, Perdas Totais: 0,00, Total Ganho: 0,00, Lucro: 0,00
+1;3;2025-01-30 00:06:04;FINANCE;Avanço de unidade de tempo. Data: 2025-01-30 00:06:04, Dia: 1, Unidade de Tempo Atual: 3, Perdas Totais: 34,00, Total Ganho: 0,00, Lucro: -34,00
+1;4;2025-01-30 00:06:04;FINANCE;Avanço de unidade de tempo. Data: 2025-01-30 00:06:04, Dia: 1, Unidade de Tempo Atual: 4, Perdas Totais: 42,00, Total Ganho: 0,00, Lucro: -42,00
+1;5;2025-01-30 00:06:05;FINANCE;Avanço de unidade de tempo. Data: 2025-01-30 00:06:05, Dia: 1, Unidade de Tempo Atual: 5, Perdas Totais: 42,00, Total Ganho: 0,00, Lucro: -42,00
+1;6;2025-01-30 00:06:05;FINANCE;Avanço de unidade de tempo. Data: 2025-01-30 00:06:05, Dia: 1, Unidade de Tempo Atual: 6, Perdas Totais: 46,00, Total Ganho: 0,00, Lucro: -46,00
+1;7;2025-01-30 00:06:05;FINANCE;Avanço de unidade de tempo. Data: 2025-01-30 00:06:05, Dia: 1, Unidade de Tempo Atual: 7, Perdas Totais: 46,00, Total Ganho: 0,00, Lucro: -46,00
+1;8;2025-01-30 00:06:05;FINANCE;Avanço de unidade de tempo. Data: 2025-01-30 00:06:05, Dia: 1, Unidade de Tempo Atual: 8, Perdas Totais: 60,00, Total Ganho: 0,00, Lucro: -60,00
+1;9;2025-01-30 00:06:06;FINANCE;Avanço de unidade de tempo. Data: 2025-01-30 00:06:06, Dia: 1, Unidade de Tempo Atual: 9, Perdas Totais: 60,00, Total Ganho: 0,00, Lucro: -60,00
+1;1;2025-01-30 00:10:09;INFO;Novo dia iniciado
+1;1;2025-01-30 00:10:10;FINANCE;Avanço de unidade de tempo. Data: 2025-01-30 00:10:10, Dia: 1, Unidade de Tempo Atual: 1, Perdas Totais: 0,00, Total Ganho: 0,00, Lucro: 0,00
+1;2;2025-01-30 00:10:10;FINANCE;Avanço de unidade de tempo. Data: 2025-01-30 00:10:10, Dia: 1, Unidade de Tempo Atual: 2, Perdas Totais: 0,00, Total Ganho: 0,00, Lucro: 0,00
+1;3;2025-01-30 00:10:10;FINANCE;Avanço de unidade de tempo. Data: 2025-01-30 00:10:10, Dia: 1, Unidade de Tempo Atual: 3, Perdas Totais: 34,00, Total Ganho: 0,00, Lucro: -34,00
+1;4;2025-01-30 00:10:10;FINANCE;Avanço de unidade de tempo. Data: 2025-01-30 00:10:10, Dia: 1, Unidade de Tempo Atual: 4, Perdas Totais: 42,00, Total Ganho: 0,00, Lucro: -42,00
+1;5;2025-01-30 00:10:11;FINANCE;Avanço de unidade de tempo. Data: 2025-01-30 00:10:11, Dia: 1, Unidade de Tempo Atual: 5, Perdas Totais: 42,00, Total Ganho: 0,00, Lucro: -42,00
+1;6;2025-01-30 00:10:11;FINANCE;Avanço de unidade de tempo. Data: 2025-01-30 00:10:11, Dia: 1, Unidade de Tempo Atual: 6, Perdas Totais: 46,00, Total Ganho: 0,00, Lucro: -46,00
+1;7;2025-01-30 00:10:11;FINANCE;Avanço de unidade de tempo. Data: 2025-01-30 00:10:11, Dia: 1, Unidade de Tempo Atual: 7, Perdas Totais: 46,00, Total Ganho: 0,00, Lucro: -46,00
+1;8;2025-01-30 00:10:11;FINANCE;Avanço de unidade de tempo. Data: 2025-01-30 00:10:11, Dia: 1, Unidade de Tempo Atual: 8, Perdas Totais: 60,00, Total Ganho: 0,00, Lucro: -60,00
+1;9;2025-01-30 00:10:11;FINANCE;Avanço de unidade de tempo. Data: 2025-01-30 00:10:11, Dia: 1, Unidade de Tempo Atual: 9, Perdas Totais: 60,00, Total Ganho: 0,00, Lucro: -60,00
+1;1;2025-01-30 00:13:41;INFO;Novo dia iniciado
+1;1;2025-01-30 00:13:42;FINANCE;Avanço de unidade de tempo. Data: 2025-01-30 00:13:42, Dia: 1, Unidade de Tempo Atual: 1, Perdas Totais: 0,00, Total Ganho: 0,00, Lucro: 0,00
+1;2;2025-01-30 00:13:43;FINANCE;Avanço de unidade de tempo. Data: 2025-01-30 00:13:43, Dia: 1, Unidade de Tempo Atual: 2, Perdas Totais: 0,00, Total Ganho: 0,00, Lucro: 0,00
+1;3;2025-01-30 00:13:44;FINANCE;Avanço de unidade de tempo. Data: 2025-01-30 00:13:44, Dia: 1, Unidade de Tempo Atual: 3, Perdas Totais: 34,00, Total Ganho: 0,00, Lucro: -34,00
+1;1;2025-01-30 00:15:07;INFO;Novo dia iniciado
+1;1;2025-01-30 00:15:26;FINANCE;Dia encerrado. Data: 2025-01-30 00:15:26, Perdas Totais: 0,00, Total Ganho: 0,00, Lucro: 0,00, Pedidos Atendidos: 0, Pedidos Não Atendidos: 0

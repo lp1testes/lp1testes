@@ -1,7 +1,6 @@
 package Controller;
 
 import Model.*;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
@@ -14,7 +13,7 @@ public class SimulacaoDiaController {
     private final ConfiguracaoController configuracaoController;
     private final ReservaController reservaController;
     private final MesaController mesaController;
-    private LogsDAL logsDAL;
+    private LogsController logsController;
     private double prejuizoTotal;
     private double totalGanho;
     private Set<Integer> reservasNotificadas;
@@ -29,6 +28,7 @@ public class SimulacaoDiaController {
         Configuracao configuracao = configuracaoController.getConfiguracao();
         this.reservaController = ReservaController.getInstance(configuracao);
         this.mesaController = MesaController.getInstance(configuracao, reservaController);
+        this.logsController = LogsController.getInstance(); // Usando a instância Singleton
     }
 
     public static synchronized SimulacaoDiaController getInstance() {
@@ -36,13 +36,6 @@ public class SimulacaoDiaController {
             instance = new SimulacaoDiaController();
         }
         return instance;
-    }
-
-    private LogsDAL getLogsDAL() {
-        if (logsDAL == null) {
-            logsDAL = LogsDAL.getInstance();
-        }
-        return logsDAL;
     }
 
     public int getDiaAtual() {
@@ -64,7 +57,7 @@ public class SimulacaoDiaController {
 
         // Adicionar log para o novo dia
         Logs log = new Logs(novoDia, 1, "INFO", "Novo dia iniciado");
-        getLogsDAL().adicionarLog(log);
+        logsController.criarLog(log.getDay(), log.getHour(), log.getLogType(), log.getLogDescription());
 
         return "\n Novo dia iniciado. Dia: " + simulacaoDia.getDia() + ", Unidade de Tempo Atual: " + simulacaoDia.getUnidadeTempoAtual();
     }
@@ -76,6 +69,26 @@ public class SimulacaoDiaController {
         if (simulacaoDia.getUnidadeTempoAtual() + 1 > configuracaoController.getConfiguracao().getUnidadesTempoDia()) {
             return "\n O dia só tem " + configuracaoController.getConfiguracao().getUnidadesTempoDia() + " tempos, não podes avançar mais!";
         } else {
+            // Calcular o total faturado, total de gastos e lucro
+            calcularTotalGanho();
+            double lucro = totalGanho - prejuizoTotal;
+
+            // Obter a data e hora do sistema
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            String formattedNow = now.format(formatter);
+
+            // Criar o log
+            int currentDay = simulacaoDia.getDia();
+            int currentHour = simulacaoDia.getUnidadeTempoAtual();
+            String logType = "FINANCE";
+            String logDescription = String.format("Avanço de unidade de tempo. Data: %s, Dia: %d, Unidade de Tempo Atual: %d, Perdas Totais: %.2f, Total Ganho: %.2f, Lucro: %.2f",
+                    formattedNow, currentDay, currentHour, prejuizoTotal, totalGanho, lucro);
+
+            Logs log = new Logs(currentDay, currentHour, logType, logDescription);
+            logsController.criarLog(log.getDay(), log.getHour(), log.getLogType(), log.getLogDescription());
+
+            // Avançar a unidade de tempo
             simulacaoDia.setUnidadeTempoAtual(simulacaoDia.getUnidadeTempoAtual() + 1);
             String verificacoes = verificarPagamentosEReservasExpiradas();
             return "\n Unidade de Tempo Avançada. Unidade de Tempo Atual: " + simulacaoDia.getUnidadeTempoAtual() + verificacoes + "\nPerdas Totais: " + prejuizoTotal;
@@ -158,7 +171,6 @@ public class SimulacaoDiaController {
     }
 
     public String encerrarDia() {
-
         // Calcular o lucro antes de encerrar o dia
         double lucro = totalGanho - prejuizoTotal;
 
@@ -167,14 +179,19 @@ public class SimulacaoDiaController {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String formattedNow = now.format(formatter);
 
+        // Obter o número de pedidos atendidos e não atendidos
+        int pedidosAtendidos = mesaController.contarPedidosAtendidos();
+        int pedidosNaoAtendidos = mesaController.contarPedidosNaoAtendidos();
+
         // Criar o log
         int currentDay = simulacaoDia.getDia();
         int currentHour = simulacaoDia.getUnidadeTempoAtual();
         String logType = "FINANCE";
-        String logDescription = String.format("Dia encerrado. Data: %s, Perdas Totais: %.2f, Total Ganho: %.2f, Lucro: %.2f", formattedNow, prejuizoTotal, totalGanho, lucro);
+        String logDescription = String.format("Dia encerrado. Data: %s, Perdas Totais: %.2f, Total Ganho: %.2f, Lucro: %.2f, Pedidos Atendidos: %d, Pedidos Não Atendidos: %d",
+                formattedNow, prejuizoTotal, totalGanho, lucro, pedidosAtendidos, pedidosNaoAtendidos);
 
         Logs log = new Logs(currentDay, currentHour, logType, logDescription);
-        getLogsDAL().adicionarLog(log);
+        logsController.criarLog(log.getDay(), log.getHour(), log.getLogType(), log.getLogDescription());
 
         simulacaoDia.setUnidadeTempoAtual(0);
         simulacaoDia.setAtivo(false);
@@ -182,7 +199,8 @@ public class SimulacaoDiaController {
         // Calcular o total ganho antes de encerrar o dia
         calcularTotalGanho();
 
-        return String.format("\nDia encerrado em %s. Perdas Totais: %.2f\nTotal Ganho: %.2f\nLucro: %.2f", formattedNow, prejuizoTotal, totalGanho, lucro);
+        return String.format("\nDia encerrado em %s. Perdas Totais: %.2f\nTotal Ganho: %.2f\nLucro: %.2f\nPedidos Atendidos: %d\nPedidos Não Atendidos: %d",
+                formattedNow, prejuizoTotal, totalGanho, lucro, pedidosAtendidos, pedidosNaoAtendidos);
     }
 
     public SimulacaoDia getSimulacaoDia() {

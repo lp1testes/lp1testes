@@ -23,7 +23,7 @@ public class RegistarPedidosView {
         this.configuracaoController = configuracaoController;
         this.pratoController = pratoController;
         this.menuController = menuController;
-        this.logsController = new LogsController();
+        this.logsController = LogsController.getInstance();
     }
 
     public void exibirMenuRegistoPedidos(Scanner scanner) {
