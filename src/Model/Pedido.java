@@ -1,27 +1,29 @@
 package Model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Pedido {
 
     private Mesa mesa;
-    private List<Prato> pratos;
-    private List<Menu> menus;
+    private Prato[] pratos;
+    private Menu[] menus;
     private double totalCusto;
     private double totalVenda;
     private double lucro;
     private boolean pago;
     private int tempoPedido;
+    private int pratoCount;
+    private int menuCount;
+    private static final int LIMITE = 100;
 
     public Pedido() {
-        this.pratos = new ArrayList<>();
-        this.menus = new ArrayList<>();
+        this.pratos = new Prato[LIMITE]; // Tamanho máximo definido em 100
+        this.menus = new Menu[LIMITE]; // Tamanho máximo definido em 100
         this.totalCusto = 0.0;
         this.totalVenda = 0.0;
         this.lucro = 0.0;
         this.pago = false; // Inicialmente o pedido não está pago
         this.tempoPedido = -1; // Inicializa com um valor inválido
+        this.pratoCount = 0;
+        this.menuCount = 0;
     }
 
     public Mesa getMesa() {
@@ -32,9 +34,10 @@ public class Pedido {
         this.mesa = mesa;
     }
 
-    public List<Prato> getPratos() {
+    public Prato[] getPratos() {
         return pratos;
     }
+
     public int getTempoPedido() {
         return tempoPedido;
     }
@@ -43,7 +46,7 @@ public class Pedido {
         this.tempoPedido = tempoPedido;
     }
 
-    public List<Menu> getMenus() {
+    public Menu[] getMenus() {
         return menus;
     }
 
@@ -68,20 +71,38 @@ public class Pedido {
     }
 
     public void adicionarPrato(Prato prato) {
-        this.pratos.add(prato);
-        this.totalCusto += prato.getPrecoCusto();
-        this.totalVenda += prato.getPrecoVenda();
-        this.lucro = this.totalVenda - this.totalCusto;
+        if (pratoCount < LIMITE) {
+            pratos[pratoCount++] = prato;
+            this.totalCusto += prato.getPrecoCusto();
+            this.totalVenda += prato.getPrecoVenda();
+            this.lucro = this.totalVenda - this.totalCusto;
+        } else {
+            System.out.println("Limite de pratos atingido!");
+        }
     }
 
     public void adicionarMenu(Menu menu) {
-        this.menus.add(menu);
-        for (Prato prato : menu.getPratos()) {
-            if (prato != null) {
-                this.totalCusto += prato.getPrecoCusto();
-                this.totalVenda += prato.getPrecoVenda();
+        if (menuCount < LIMITE) {
+            menus[menuCount++] = menu;
+            for (Prato prato : menu.getPratos()) {
+                if (prato != null) {
+                    this.totalCusto += prato.getPrecoCusto();
+                    this.totalVenda += prato.getPrecoVenda();
+                }
             }
+            this.lucro = this.totalVenda - this.totalCusto;
+        } else {
+            System.out.println("Limite de menus atingido!");
         }
-        this.lucro = this.totalVenda - this.totalCusto;
+    }
+
+    // Método para verificar se a coleção de pratos está vazia
+    public boolean isPratosVazio() {
+        return pratoCount == 0;
+    }
+
+    // Método para verificar se a coleção de menus está vazia
+    public boolean isMenusVazio() {
+        return menuCount == 0;
     }
 }

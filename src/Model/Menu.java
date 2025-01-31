@@ -37,4 +37,9 @@ public class Menu {
     public int getPratoCount() {
         return pratoCount;
     }
+
+    // Método para verificar se o menu está vazio
+    public boolean isVazio() {
+        return pratoCount == 0;
+    }
 }

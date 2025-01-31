@@ -17,16 +17,19 @@ public class MesaController {
     private MesaDAL mesaDAL;
     private ReservaController reservaController;
     private MesaReserva[] mesaReservas;
+    private Pedido[] pedidos;
     private int mesaReservaCount;
-    private List<Pedido> pedidos;
+    private int pedidoCount;
+    private static final int LIMITE = 100;
 
     private MesaController(Configuracao configuracao, ReservaController reservaController) {
         mesaDAL = new MesaDAL(configuracao);
         mesas = mesaDAL.carregarMesas();
         this.reservaController = reservaController;
-        this.mesaReservas = new MesaReserva[100]; // Exemplo de tamanho fixo
+        this.mesaReservas = new MesaReserva[LIMITE]; // Tamanho máximo definido em 100
+        this.pedidos = new Pedido[LIMITE];
         this.mesaReservaCount = 0;
-        this.pedidos = new ArrayList<>();
+        this.pedidoCount = 0;
     }
 
     public static synchronized MesaController getInstance(Configuracao configuracao, ReservaController reservaController) {
@@ -38,12 +41,9 @@ public class MesaController {
 
     public void setReservaController(ReservaController reservaController) {
         this.reservaController = reservaController;
-
     }
 
-    // Restante da classe permanece inalterada...
-
-        public Mesa[] getMesas() {
+    public Mesa[] getMesas() {
         return mesas;
     }
 
@@ -208,7 +208,7 @@ public class MesaController {
             pedido = new Pedido();
             pedido.setMesa(getMesaById(idMesa));
             pedido.setTempoPedido(tempoAtual);
-            pedidos.add(pedido);
+            pedidos[pedidoCount++] = pedido;
         }
 
         int tempoRestanteDia = configuracao.getUnidadesTempoDia() - (tempoAtual + 1 + configuracao.getUnidadesTempoParaPagamento());
@@ -319,7 +319,7 @@ public class MesaController {
         if (pedido == null) {
             pedido = new Pedido();
             pedido.setMesa(getMesaById(idMesa));
-            pedidos.add(pedido);
+            pedidos[pedidoCount++] = pedido;
         }
         pedido.adicionarPrato(prato);
     }
@@ -329,15 +329,15 @@ public class MesaController {
         if (pedido == null) {
             pedido = new Pedido();
             pedido.setMesa(getMesaById(idMesa));
-            pedidos.add(pedido);
+            pedidos[pedidoCount++] = pedido;
         }
         pedido.adicionarMenu(menu);
     }
 
     public Pedido getPedidoByMesa(int idMesa) {
-        for (Pedido pedido : pedidos) {
-            if (pedido.getMesa().getId() == idMesa) {
-                return pedido;
+        for (int i = 0; i < pedidoCount; i++) {
+            if (pedidos[i] != null && pedidos[i].getMesa().getId() == idMesa) {
+                return pedidos[i];
             }
         }
         return null;
@@ -354,7 +354,7 @@ public class MesaController {
 
     public void listarPedidosAtendidos(int idMesa) {
         Pedido pedido = getPedidoByMesa(idMesa);
-        if (pedido == null || (pedido.getPratos().isEmpty() && pedido.getMenus().isEmpty())) {
+        if (pedido == null || (pedido.getPratos().length == 0 && pedido.getMenus().length == 0)) {
             System.out.println("Não há pedidos atendidos para a mesa " + idMesa);
             return;
         }
@@ -363,19 +363,23 @@ public class MesaController {
         int clienteCount = 1;
 
         for (Prato prato : pedido.getPratos()) {
-            System.out.println("Cliente " + clienteCount + ": Prato");
-            System.out.println("   " + prato.getNome());
-            clienteCount++;
+            if (prato != null) {
+                System.out.println("Cliente " + clienteCount + ": Prato");
+                System.out.println("   " + prato.getNome());
+                clienteCount++;
+            }
         }
 
         for (Menu menu : pedido.getMenus()) {
-            System.out.println("Cliente " + clienteCount + ": Menu");
-            for (Prato prato : menu.getPratos()) {
-                if (prato != null) {
-                    System.out.println("   " + prato.getNome());
+            if (menu != null) {
+                System.out.println("Cliente " + clienteCount + ": Menu");
+                for (Prato prato : menu.getPratos()) {
+                    if (prato != null) {
+                        System.out.println("   " + prato.getNome());
+                    }
                 }
+                clienteCount++;
             }
-            clienteCount++;
         }
 
         System.out.printf("Total Custo: %.2f\n", pedido.getTotalCusto());
@@ -432,9 +436,11 @@ public class MesaController {
             }
         }
         for (Menu menu : pedido.getMenus()) {
-            for (Prato prato : menu.getPratos()) {
-                if (prato != null && prato.getTempoPreparacao() > maxTempo) {
-                    maxTempo = prato.getTempoPreparacao();
+            if (menu != null) { // Verificação nula
+                for (Prato prato : menu.getPratos()) {
+                    if (prato != null && prato.getTempoPreparacao() > maxTempo) {
+                        maxTempo = prato.getTempoPreparacao();
+                    }
                 }
             }
         }
@@ -464,6 +470,7 @@ public class MesaController {
 
         return tempoAtual > tempoLimiteReserva;
     }
+
     public boolean tempoPedidoUltrapassado(int idMesa, int tempoAtual) {
         MesaReserva mesaReserva = getMesaReservaByIdMesa(idMesa);
         if (mesaReserva == null) {
@@ -484,10 +491,11 @@ public class MesaController {
         }
         return null;
     }
+
     public int contarPedidosAtendidos() {
         int count = 0;
-        for (Pedido pedido : pedidos) {
-            if (pedido.isPago()) {
+        for (int i = 0; i < pedidoCount; i++) {
+            if (pedidos[i] != null && pedidos[i].isPago()) {
                 count++;
             }
         }
@@ -496,12 +504,11 @@ public class MesaController {
 
     public int contarPedidosNaoAtendidos() {
         int count = 0;
-        for (Pedido pedido : pedidos) {
-            if (!pedido.isPago()) {
+        for (int i = 0; i < pedidoCount; i++) {
+            if (pedidos[i] != null && !pedidos[i].isPago()) {
                 count++;
             }
         }
         return count;
     }
 }
-

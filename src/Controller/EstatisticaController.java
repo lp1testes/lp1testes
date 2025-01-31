@@ -21,6 +21,15 @@ public class EstatisticaController {
         Logs[] logs = logsController.obterTodosLogs();
         Prato[] pratos = pratoController.getPratos();
 
+        // Imprimir todos os logs
+        System.out.println("----- Todos os Logs -----");
+        for (Logs log : logs) {
+            if (log != null) {
+                System.out.println(log);
+            }
+        }
+        System.out.println("----- Fim dos Logs -----");
+
         if (pratos == null || pratos.length == 0) {
             System.out.println("Não há pratos disponíveis.");
             return null;
@@ -60,7 +69,6 @@ public class EstatisticaController {
 
         return pratoMaisPedido;
     }
-
     public double calcularTempoMedioEsperaMesa() {
         Reserva[] reservas = reservaController.getReservas();
         if (reservas == null || reservas.length == 0) {

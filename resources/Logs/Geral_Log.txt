@@ -1,0 +1,1 @@
+0;0;2025-01-31 20:43:33;INFO;Listagem de menus exibida
