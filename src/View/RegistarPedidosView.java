@@ -112,9 +112,11 @@ public class RegistarPedidosView {
 
         // Adicionar pratos dos menus ao log
         for (Menu menu : pedido.getMenus()) {
-            for (Prato prato : menu.getPratos()) {
-                if (prato != null) {
-                    pratosConsumidos.append(prato.getNome()).append(", ");
+            if (menu != null) { // Verificação nula adicionada
+                for (Prato prato : menu.getPratos()) {
+                    if (prato != null) {
+                        pratosConsumidos.append(prato.getNome()).append(", ");
+                    }
                 }
             }
         }

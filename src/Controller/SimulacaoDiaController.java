@@ -128,7 +128,7 @@ public class SimulacaoDiaController {
 
             Reserva reserva = mesaController.getClienteDaMesa(mesa.getId());
             if (reserva != null) {
-                if (mesaController.tempoPedidoUltrapassado(mesa.getId(), tempoAtual) && (pedido == null || (pedido.getPratos().isEmpty() && pedido.getMenus().isEmpty()))) {
+                if (mesaController.tempoPedidoUltrapassado(mesa.getId(), tempoAtual) && (pedido == null || (pedido.isPratosVazio() && pedido.isMenusVazio()))) {
                     prejuizoTotal += reserva.getNumeroPessoas() * configuracao.getCustoClienteNaoAtendido();
                     mesaController.removerReservaDaMesa(mesa.getId());
                     mesaController.marcarMesaComoDisponivel(mesa.getId());
