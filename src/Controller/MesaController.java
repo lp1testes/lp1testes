@@ -432,10 +432,6 @@ public class MesaController {
         int tempoMaximoPreparo = getTempoMaximoPreparo(pedido);
         int tempoFinalPreparo = pedido.getTempoPedido() + tempoMaximoPreparo;
 
-        System.out.println("Tempo atual: " + tempoAtual);
-        System.out.println("Tempo do pedido: " + pedido.getTempoPedido());
-        System.out.println("Tempo máximo de preparação: " + tempoMaximoPreparo);
-        System.out.println("Tempo final de preparo: " + tempoFinalPreparo);
 
         if (tempoAtual == tempoFinalPreparo) {
             System.out.println("Você deve esperar mais uma unidade de tempo para efetuar o pagamento.");
@@ -443,7 +439,6 @@ public class MesaController {
         }
 
         boolean podeEfetuar = tempoAtual > tempoFinalPreparo;
-        System.out.println("Pode efetuar pagamento: " + podeEfetuar);
 
         return podeEfetuar;
     }

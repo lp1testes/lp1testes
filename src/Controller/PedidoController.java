@@ -79,6 +79,17 @@ public class PedidoController {
     }
 
     public String efetuarPagamentoView(Scanner scanner) {
+        // Listar as mesas ocupadas com pedidos associados logo de início
+        StringBuilder mesasOcupadas = new StringBuilder();
+        mesasOcupadas.append("\nMesas ocupadas com pedidos associados:\n");
+        for (Mesa mesa : MesaController.getInstance().getMesas()) {
+            if (mesa != null && mesa.isOcupada() && MesaController.getInstance().getPedidoByMesa(mesa.getId()) != null) {
+                mesasOcupadas.append("Mesa ID: ")
+                        .append(MesaController.getInstance().getPedidoByMesa(mesa.getId()));
+            }
+        }
+        System.out.println(mesasOcupadas.toString());
+
         System.out.print("Digite o ID da mesa para efetuar o pagamento: ");
 
         int idMesa = -1;
@@ -146,4 +157,4 @@ public class PedidoController {
         LogsController.getInstance().criarLog(currentDay, currentHour, logType, logDescription);
 
         return "Pagamento efetuado com sucesso";
-    }}
+    } }
