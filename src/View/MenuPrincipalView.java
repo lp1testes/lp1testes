@@ -117,6 +117,7 @@ public class MenuPrincipalView {
                     break;
                 case 0:
                     System.out.println("Saindo do sistema...");
+                    salvarTudo();
                     scanner.close();
                     break;
                 default:
