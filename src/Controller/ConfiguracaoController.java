@@ -1,16 +1,16 @@
 package Controller;
 
 import DAL.*;
-import Model.Configuracao;
+import Utils.Configuracao;
 import Model.SimulacaoDia;
 
 public class ConfiguracaoController {
 
     private static ConfiguracaoController configuracaoController;
-    private Configuracao configuracao;
+    private Configuracao configuracao = Configuracao.getInstancia();
     private ConfiguracaoDAL configuracaoDAL;
     private SimulacaoDia simulacaoDia;
-    private MesaDAL mesaDAL;
+    private static MesaDAL mesaDAL;
     private PratoDAL pratoDAL;
     private MenuDAL menuDAL;
     private PedidoDAL pedidoDAL;
@@ -23,16 +23,15 @@ public class ConfiguracaoController {
         return configuracaoController;
     }
 
-    private ConfiguracaoController() {
+    ConfiguracaoController() {
         configuracaoDAL = new ConfiguracaoDAL();
-        configuracao = new Configuracao();
         carregarConfiguracoes();
         simulacaoDia = new SimulacaoDia();
-        mesaDAL = new MesaDAL(configuracao);
+        mesaDAL = new MesaDAL();
         pratoDAL = new PratoDAL();
         menuDAL = new MenuDAL();
         pedidoDAL = new PedidoDAL();
-        reservaDAL = new ReservaDAL(configuracao);
+        reservaDAL = new ReservaDAL();
         desempenhoFinanceiroDAL = new DesempenhoFinanceiroDAL();
         estatisticaDAL = new EstatisticaDAL();
     }
@@ -159,7 +158,7 @@ public class ConfiguracaoController {
     private void salvarConfiguracoes() {
         configuracaoDAL.salvarConfiguracoes(configuracao);
         carregarConfiguracoes();
-        mesaDAL = new MesaDAL(configuracao);
+        mesaDAL = new MesaDAL();
     }
 
     private boolean isDiaEmAndamento() {

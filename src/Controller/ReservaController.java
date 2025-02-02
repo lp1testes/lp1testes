@@ -1,33 +1,38 @@
 package Controller;
 
 import DAL.ReservaDAL;
-import Model.Configuracao;
+import Utils.Configuracao;
 import Model.Reserva;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.InputMismatchException;
+import java.util.Scanner;
 
 public class ReservaController {
 
     private Reserva[] reservas;
 
     private static ReservaController instance;
-    private ReservaDAL reservaDAL;
-    private Configuracao configuracao;
-    private MesaController mesaController;
-    private ConfiguracaoController configuracaoController;
+    private static ReservaDAL reservaDAL ;
+    private Configuracao configuracao = Configuracao.getInstancia();
+    private static final MesaController mesaController = MesaController.getInstance();
+    private static final ConfiguracaoController configuracaoController = ConfiguracaoController.getInstancia();
+    private static final SimulacaoDiaController simulacaoDiaController = SimulacaoDiaController.getInstance();
+    private static final LogsController logsController = LogsController.getInstance();
 
-    private ReservaController(Configuracao configuracao) {
-        this.configuracao = configuracao;
-        this.reservaDAL = new ReservaDAL(configuracao);
-        this.reservas = reservaDAL.carregarReservas();
-        this.configuracaoController = ConfiguracaoController.getInstancia();
-        this.mesaController = MesaController.getInstance(configuracao, this);
+    ReservaController() {
+        this.reservaDAL             = new ReservaDAL();
+        this.reservas               = reservaDAL.carregarReservas();
+        //this.configuracaoController = ConfiguracaoController.getInstancia();
+        //this.simulacaoDiaController = SimulacaoDiaController.getInstance();
+        //this.mesaController         = MesaController.getInstance();
+        //this.logsController         = LogsController.getInstance();
     }
     // Método para obter a instância Singleton
-    public static synchronized ReservaController getInstance(Configuracao configuracao) {
+    public static synchronized ReservaController getInstance() {
         if (instance == null) {
-            instance = new ReservaController(configuracao);
+            instance = new ReservaController();
         }
         return instance;
     }
@@ -176,5 +181,105 @@ public class ReservaController {
             }
         }
         System.out.println("Reserva não encontrada.");
+    }
+
+    public String atribuirClientesMesas(Scanner scanner){
+
+        int tempoAtual = simulacaoDiaController.getUnidadeTempoAtual();
+        int currentDay = simulacaoDiaController.getDiaAtual();
+        int unitsForAssignment = configuracaoController.getConfiguracao().getUnidadesTempoIrParaMesa();
+
+        Reserva[] reservasDisponiveis = listarReservasDisponiveis(tempoAtual);
+
+        if (reservasDisponiveis.length == 0) {
+            return "Não há reservas disponíveis para associar a uma mesa no momento.";
+        }
+
+        System.out.println("\n-- Reservas Disponíveis --");
+        for (Reserva reserva : reservasDisponiveis) {
+            if (reserva != null) {
+                System.out.println("ID: " + reserva.getId() + ", Nome: " + reserva.getNome() + ", Número de Pessoas: " + reserva.getNumeroPessoas() + ", Tempo de Chegada: " + reserva.getTempoChegada());
+            }
+        }
+
+        int idMesa = -1;
+        while (idMesa == -1) {
+            System.out.print("\nID da mesa a atribuir clientes: ");
+            try {
+                idMesa = scanner.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.println("Entrada inválida! Por favor, insira um número inteiro.");
+                scanner.nextLine(); // Limpar o buffer
+            }
+        }
+
+        int idReserva = -1;
+        while (idReserva == -1) {
+            System.out.print("ID da reserva: ");
+            try {
+                idReserva = scanner.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.println("Entrada inválida! Por favor, insira um número inteiro.");
+                scanner.nextLine(); // Limpar o buffer
+            }
+        }
+        scanner.nextLine(); // Limpar o buffer
+
+        Reserva reserva = getReservaById(idReserva);
+        if (reserva != null) {
+            int tempoChegada = reserva.getTempoChegada();
+            int tempoLimite = tempoChegada + unitsForAssignment;
+
+            if (tempoAtual <= tempoLimite) {
+                mesaController.atribuirClientesAMesa(idMesa, reserva, tempoAtual);
+
+                // Criação do log
+                String logType = "ACTION";
+                String logDescription = String.format("Clientes da reserva %s (ID: %d) foram atribuídos à mesa %d. Número de Pessoas: %d, Tempo de Chegada: %d",
+                        reserva.getNome(), reserva.getId(), idMesa, reserva.getNumeroPessoas(), reserva.getTempoChegada());
+
+                logsController.criarLog(currentDay, tempoAtual, logType, logDescription);
+
+                return "Clientes atribuídos à mesa com sucesso!";
+            } else {
+                return "Tempo limite para atribuição da reserva " + reserva.getNome() + " expirou.";
+            }
+        } else {
+            return "Reserva não encontrada.";
+        }
+    }
+
+    public void verClienteDaMesa(Scanner scanner){
+
+        int idMesa = -1;
+
+        while (idMesa == -1) {
+            System.out.print("\nID da mesa para ver o cliente: ");
+            try {
+                idMesa = scanner.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.println("Entrada inválida! Por favor, insira um número inteiro.");
+                scanner.nextLine(); // Limpar o buffer
+            }
+        }
+        scanner.nextLine(); // Limpar o buffer
+
+        Reserva reserva = mesaController.getClienteDaMesa(idMesa);
+        if (reserva != null) {
+
+            System.out.println("ID: " + reserva.getId() + ", Nome: " + reserva.getNome() + ", Número de Pessoas: " + reserva.getNumeroPessoas() + ", Tempo de Chegada: " + reserva.getTempoChegada());
+
+            // Obter o dia atual e a unidade de tempo atual da simulação
+            int currentDay = simulacaoDiaController.getDiaAtual();
+            int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+            // Criação do log
+            String logType = "INFO";
+            String logDescription = String.format("Cliente da mesa %d visualizado: ID %d, Nome %s", idMesa, reserva.getId(), reserva.getNome());
+
+            logsController.criarLog(currentDay, currentHour, logType, logDescription);
+        } else {
+            System.out.println("Nenhum cliente associado a esta mesa ou mesa não encontrada.");
+        }
     }
 }

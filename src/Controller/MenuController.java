@@ -4,17 +4,33 @@ import DAL.MenuDAL;
 import Model.Menu;
 import Model.Prato;
 
-public class MenuController {
+import java.util.InputMismatchException;
+import java.util.Scanner;
 
+public class MenuController {
+    private static MenuController instance;
     private Menu menu;
     private MenuDAL menuDAL;
-    private PratoController pratoController;
+    private static final PratoController pratoController = PratoController.getInstance();
+    private static final MesaController mesaController = MesaController.getInstance();
+    private static final SimulacaoDiaController simulacaoDiaController = SimulacaoDiaController.getInstance();
+    private static final LogsController logsController = LogsController.getInstance();
 
     public MenuController() {
-        menu = new Menu();
-        pratoController = new PratoController();
-        menuDAL = new MenuDAL();
+        menu                    = new Menu();
+        //pratoController         = new PratoController();
+        menuDAL                 = new MenuDAL();
+        //mesaController          = new MesaController();
+        //simulacaoDiaController  = new SimulacaoDiaController();
+        //logsController          = new LogsController();
         //menu = menuDAL.carregarMenus();
+    }
+
+    public static synchronized MenuController getInstance() {
+        if (instance == null) {
+            instance = new MenuController();
+        }
+        return instance;
     }
 
     public Menu getMenu() {
@@ -158,5 +174,57 @@ public class MenuController {
             }
         }
         return null;
+    }
+
+    public void listarMenus(Scanner scanner, int idMesa, int clienteIndex){
+
+        Menu[] menus = obterTodosMenus();
+
+        if (menus.length == 0) {
+            System.out.println("Não há menus disponíveis no momento.");
+            return;
+        }
+
+        System.out.println("\n-- Menus Disponíveis --");
+        for (Menu menu : menus) {
+            if (menu != null) {
+                System.out.println("ID: " + menu.getId() + " - Pratos:");
+                for (Prato prato : menu.getPratos()) {
+                    if (prato != null && prato.isDisponivel()) {
+                        System.out.println("   ID: " + prato.getId() + " - Nome: " + prato.getNome() + " - Preço: " + prato.getPrecoVenda());
+                    }
+                }
+            }
+        }
+
+        int idMenu = -1;
+        while (idMenu == -1) {
+            System.out.print("Escolha o ID do menu: ");
+            try {
+                idMenu = scanner.nextInt();
+                scanner.nextLine(); // Limpar o buffer
+            } catch (InputMismatchException e) {
+                System.out.println("Entrada inválida! Por favor, insira um número inteiro.");
+                scanner.nextLine(); // Limpar o buffer
+            }
+        }
+
+        Menu menuSelecionado = getMenuById(idMenu);
+        if (menuSelecionado != null) {
+            mesaController.adicionarMenuAoPedido(idMesa, menuSelecionado);
+            System.out.printf("Menu %d adicionado ao pedido do Cliente %d.%n", menuSelecionado.getId(), clienteIndex + 1);
+
+            // Obter o dia atual e a unidade de tempo atual da simulação
+            int currentDay = simulacaoDiaController.getDiaAtual();
+            int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+            // Criação do log
+            String logType = "ACTION";
+            String logDescription = String.format("Menu %d adicionado ao pedido da mesa ID: %d", menuSelecionado.getId(), idMesa);
+
+            logsController.criarLog(currentDay, currentHour, logType, logDescription);
+        } else {
+            System.out.println("Menu inválido.");
+        }
     }
 }

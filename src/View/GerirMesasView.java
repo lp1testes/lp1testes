@@ -1,12 +1,7 @@
 package View;
 
 import Controller.*;
-import Model.Configuracao;
-import Model.Reserva;
-import Model.Mesa;
 
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -72,180 +67,32 @@ public class GerirMesasView {
     }
 
     private void registarMesas(Scanner scanner) {
-        int capacidade = 0;
-        boolean valido = false;
 
-        while (!valido) {
-            System.out.print("Insira a capacidade da mesa (ou 000 para cancelar): ");
-            String input = scanner.nextLine().trim();
+        boolean retornoRegistoComSucesso = mesaController.registarMesas(scanner);
 
-            if (input.equals("000")) {
-                System.out.println("Adição de mesa cancelada.");
-                return;
-            } else {
-                try {
-                    capacidade = Integer.parseInt(input);
-                    if (capacidade > 0) {
-                        valido = true;
-                    } else {
-                        System.out.println("Capacidade inválida! A capacidade não pode ser menor ou igual a zero.");
-                    }
-                } catch (NumberFormatException e) {
-                    System.out.println("Entrada inválida! Por favor, insira um número inteiro.");
-                }
-            }
+        if(retornoRegistoComSucesso){
+            System.out.println("Mesa registrada com sucesso!");
         }
-
-        Mesa novaMesa = new Mesa(null, capacidade, false);
-        mesaController.adicionarMesa(novaMesa);
-
-        // Obter o dia atual e a unidade de tempo atual da simulação
-        int currentDay = simulacaoDiaController.getDiaAtual();
-        int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
-
-        // Criação do log
-        String logType = "ACTION";
-        String logDescription = String.format("Mesa registrada: Capacidade %d", capacidade);
-
-        logsController.criarLog(currentDay, currentHour, logType, logDescription);
-
-        System.out.println("Mesa registrada com sucesso!");
+        else{
+            System.out.println("Adição de mesa cancelada.");
+        }
     }
 
     private void verificarEstadoMesas() {
-        Mesa[] mesas = mesaController.getMesas();
-        Arrays.sort(mesas, new Comparator<Mesa>() {
-            @Override
-            public int compare(Mesa m1, Mesa m2) {
-                if (m1 == null && m2 == null) {
-                    return 0;
-                }
-                if (m1 == null) {
-                    return 1;
-                }
-                if (m2 == null) {
-                    return -1;
-                }
-                return Integer.compare(m1.getId(), m2.getId());
-            }
-        });
-
-        System.out.println("\n-- Estado das Mesas --");
-        for (Mesa mesa : mesas) {
-            if (mesa != null) {
-                String estado = mesa.isOcupada() ? "Ocupada" : "Livre";
-                System.out.println("Mesa " + mesa.getId() + ": Capacidade " + mesa.getCapacidade() + " - " + estado);
-            }
-        }
-
-        // Obter o dia atual e a unidade de tempo atual da simulação
-        int currentDay = simulacaoDiaController.getDiaAtual();
-        int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
-
-        // Criação do log
-        String logType = "INFO";
-        String logDescription = "Estado das mesas verificado";
-
-        logsController.criarLog(currentDay, currentHour, logType, logDescription);
+        mesaController.verificarEstadoMesas();
     }
 
     public void atribuirClientesMesas(Scanner scanner) {
+
         verificarEstadoMesas();
 
-        int tempoAtual = simulacaoDiaController.getUnidadeTempoAtual();
-        int currentDay = simulacaoDiaController.getDiaAtual();
-        int unitsForAssignment = configuracaoController.getConfiguracao().getUnidadesTempoIrParaMesa();
+        String retornoReserva = reservaController.atribuirClientesMesas(scanner);
 
-        Reserva[] reservasDisponiveis = reservaController.listarReservasDisponiveis(tempoAtual);
-
-        if (reservasDisponiveis.length == 0) {
-            System.out.println("Não há reservas disponíveis para associar a uma mesa no momento.");
-            return;
-        }
-
-        System.out.println("\n-- Reservas Disponíveis --");
-        for (Reserva reserva : reservasDisponiveis) {
-            if (reserva != null) {
-                System.out.println("ID: " + reserva.getId() + ", Nome: " + reserva.getNome() + ", Número de Pessoas: " + reserva.getNumeroPessoas() + ", Tempo de Chegada: " + reserva.getTempoChegada());
-            }
-        }
-
-        int idMesa = -1;
-        while (idMesa == -1) {
-            System.out.print("\nID da mesa a atribuir clientes: ");
-            try {
-                idMesa = scanner.nextInt();
-            } catch (InputMismatchException e) {
-                System.out.println("Entrada inválida! Por favor, insira um número inteiro.");
-                scanner.nextLine(); // Limpar o buffer
-            }
-        }
-
-        int idReserva = -1;
-        while (idReserva == -1) {
-            System.out.print("ID da reserva: ");
-            try {
-                idReserva = scanner.nextInt();
-            } catch (InputMismatchException e) {
-                System.out.println("Entrada inválida! Por favor, insira um número inteiro.");
-                scanner.nextLine(); // Limpar o buffer
-            }
-        }
-        scanner.nextLine(); // Limpar o buffer
-
-        Reserva reserva = reservaController.getReservaById(idReserva);
-        if (reserva != null) {
-            int tempoChegada = reserva.getTempoChegada();
-            int tempoLimite = tempoChegada + unitsForAssignment;
-
-            if (tempoAtual <= tempoLimite) {
-                mesaController.atribuirClientesAMesa(idMesa, reserva, tempoAtual);
-
-                // Criação do log
-                String logType = "ACTION";
-                String logDescription = String.format("Clientes da reserva %s (ID: %d) foram atribuídos à mesa %d. Número de Pessoas: %d, Tempo de Chegada: %d",
-                        reserva.getNome(), reserva.getId(), idMesa, reserva.getNumeroPessoas(), reserva.getTempoChegada());
-
-                logsController.criarLog(currentDay, tempoAtual, logType, logDescription);
-
-                System.out.println("Clientes atribuídos à mesa com sucesso!");
-            } else {
-                System.out.println("Tempo limite para atribuição da reserva " + reserva.getNome() + " expirou.");
-            }
-        } else {
-            System.out.println("Reserva não encontrada.");
-        }
+        System.out.println(retornoReserva);
     }
 
     private void verClienteDaMesa(Scanner scanner) {
-        int idMesa = -1;
-        while (idMesa == -1) {
-            System.out.print("\nID da mesa para ver o cliente: ");
-            try {
-                idMesa = scanner.nextInt();
-            } catch (InputMismatchException e) {
-                System.out.println("Entrada inválida! Por favor, insira um número inteiro.");
-                scanner.nextLine(); // Limpar o buffer
-            }
-        }
-        scanner.nextLine(); // Limpar o buffer
-
-        Reserva reserva = mesaController.getClienteDaMesa(idMesa);
-        if (reserva != null) {
-            System.out.println("ID: " + reserva.getId() + ", Nome: " + reserva.getNome() + ", Número de Pessoas: " + reserva.getNumeroPessoas() + ", Tempo de Chegada: " + reserva.getTempoChegada());
-
-            // Obter o dia atual e a unidade de tempo atual da simulação
-            int currentDay = simulacaoDiaController.getDiaAtual();
-            int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
-
-            // Criação do log
-            String logType = "INFO";
-            String logDescription = String.format("Cliente da mesa %d visualizado: ID %d, Nome %s", idMesa, reserva.getId(), reserva.getNome());
-
-            logsController.criarLog(currentDay, currentHour, logType, logDescription);
-        } else {
-            System.out.println("Nenhum cliente associado a esta mesa ou mesa não encontrada.");
-        }
+        reservaController.verClienteDaMesa(scanner);
     }
 
     private void editarMesa(Scanner scanner) {

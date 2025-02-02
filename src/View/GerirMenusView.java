@@ -4,7 +4,7 @@ import Controller.LogsController;
 import Controller.MenuController;
 import Controller.PratoController;
 import Controller.SimulacaoDiaController;
-import Model.Prato;
+
 import java.util.Scanner;
 
 public class GerirMenusView {
@@ -78,108 +78,46 @@ public class GerirMenusView {
     }
 
     private void criarPrato(Scanner scanner) {
+
         System.out.print("Nome do prato: ");
         String nome = scanner.nextLine();
 
-        String categoria = pratoController.validarCategoria(scanner);
-        double precoCusto = pratoController.validarPreco(scanner, "Preço de custo");
-        double precoVenda = pratoController.validarPreco(scanner, "Preço de venda");
+        boolean pratoCriado = pratoController.criarPratoGerirMenusView(nome, scanner);
 
-        int tempoPreparacao = pratoController.validarTempoPreparacao(scanner);
-
-        boolean disponivel = pratoController.validarDisponibilidade(scanner);
-
-        Prato novoPrato = new Prato(null, nome, categoria, precoCusto, precoVenda, tempoPreparacao, disponivel);
-        pratoController.adicionarPrato(novoPrato);
-
-        // Obter o dia atual e a unidade de tempo atual da simulação
-        int currentDay = simulacaoDiaController.getDiaAtual();
-        int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
-
-        // Criação do log
-        String logType = "ACTION";
-        String logDescription = String.format("Prato criado: %s, Categoria: %s, Custo: %.2f, Venda: %.2f, Tempo: %d, Disponível: %b",
-                nome, categoria, precoCusto, precoVenda, tempoPreparacao, disponivel);
-
-        logsController.criarLog(currentDay, currentHour, logType, logDescription);
-
-        System.out.println("Prato criado com sucesso!");
+        if(pratoCriado){
+            System.out.println("Prato criado com sucesso!");
+        }
+        else{
+            System.out.println("Erro ao criar prato!");
+        }
     }
 
     private void editarPrato(Scanner scanner) {
-        Prato[] pratos = pratoController.getPratos();
-        System.out.println("\n-- Lista de Pratos --");
-        for (Prato prato : pratos) {
-            if (prato != null) {
-                System.out.println("ID: " + prato.getId() + ", Nome: " + prato.getNome() + ", Categoria: " + prato.getCategoria() + ", Preço de Custo: " + prato.getPrecoCusto() + ", Preço de Venda: " + prato.getPrecoVenda() + ", Tempo de Preparação: " + prato.getTempoPreparacao() + ", Disponível: " + prato.isDisponivel());
-            }
-        }
 
-        Prato pratoParaEditar = pratoController.validarPratoParaEditar(scanner);
-        if (pratoParaEditar != null) {
-            pratoController.editarPrato(scanner, pratoParaEditar);
+        boolean pratoEditado = pratoController.editarPratoGerirMenusView(scanner);
 
-            // Obter o dia atual e a unidade de tempo atual da simulação
-            int currentDay = simulacaoDiaController.getDiaAtual();
-            int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
-
-            // Criação do log
-            String logType = "ACTION";
-            String logDescription = String.format("Prato editado: %s, Categoria: %s, Custo: %.2f, Venda: %.2f, Tempo: %d, Disponível: %b",
-                    pratoParaEditar.getNome(), pratoParaEditar.getCategoria(), pratoParaEditar.getPrecoCusto(), pratoParaEditar.getPrecoVenda(), pratoParaEditar.getTempoPreparacao(), pratoParaEditar.isDisponivel());
-
-            logsController.criarLog(currentDay, currentHour, logType, logDescription);
-
+        if(pratoEditado){
             System.out.println("Prato editado com sucesso!");
+        }
+        else{
+            System.out.println("Falha ao editar prato!");
         }
     }
 
     private void removerPrato(Scanner scanner) {
-        Prato[] pratos = pratoController.getPratos();
-        System.out.println("\n-- Lista de Pratos --");
-        for (Prato prato : pratos) {
-            if (prato != null) {
-                System.out.println("ID: " + prato.getId() + ", Nome: " + prato.getNome() + ", Categoria: " + prato.getCategoria() + ", Preço de Custo: " + prato.getPrecoCusto() + ", Preço de Venda: " + prato.getPrecoVenda() + ", Tempo de Preparação: " + prato.getTempoPreparacao() + ", Disponível: " + prato.isDisponivel());
-            }
+
+        boolean pratoRemovido = pratoController.removerPratoGerirMenusView(scanner);
+
+        if(pratoRemovido){
+            System.out.println("Prato removido com sucesso!");
         }
-
-        System.out.print("ID do prato a remover: ");
-        int id = scanner.nextInt();
-        scanner.nextLine();
-
-        pratoController.removerPrato(id);
-
-        // Obter o dia atual e a unidade de tempo atual da simulação
-        int currentDay = simulacaoDiaController.getDiaAtual();
-        int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
-
-        // Criação do log
-        String logType = "ACTION";
-        String logDescription = String.format("Prato removido: ID %d", id);
-
-        logsController.criarLog(currentDay, currentHour, logType, logDescription);
-
-        System.out.println("Prato removido com sucesso!");
+        else{
+            System.out.println("Erro ao remover prato!");
+        }
     }
 
     private void listarPratos() {
-        Prato[] pratos = pratoController.getPratos();
-        System.out.println("\n-- Lista de Pratos --");
-        for (Prato prato : pratos) {
-            if (prato != null) {
-                System.out.println("ID: " + prato.getId() + ", Nome: " + prato.getNome() + ", Categoria: " + prato.getCategoria() + ", Preço de Custo: " + prato.getPrecoCusto() + ", Preço de Venda: " + prato.getPrecoVenda() + ", Tempo de Preparação: " + prato.getTempoPreparacao() + ", Disponível: " + prato.isDisponivel());
-            }
-        }
-
-        // Obter o dia atual e a unidade de tempo atual da simulação
-        int currentDay = simulacaoDiaController.getDiaAtual();
-        int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
-
-        // Criação do log
-        String logType = "INFO";
-        String logDescription = "Listagem de pratos exibida";
-
-        logsController.criarLog(currentDay, currentHour, logType, logDescription);
+        pratoController.listarPratosGerirMenusView();
     }
 
     private void criarMenu(Scanner scanner) {
@@ -230,38 +168,15 @@ public class GerirMenusView {
     }
 
     private void editarPratoNoMenu(Scanner scanner) {
+
         listarMenus();
 
-        System.out.print("\nID do menu: ");
-        int menuId = scanner.nextInt();
-        scanner.nextLine();
+        boolean pratoEditadoNoMenu = pratoController.editarPratoNoMenuGerirMenusView(scanner);
 
-        System.out.print("ID do prato a editar: ");
-        int pratoId = scanner.nextInt();
-        scanner.nextLine();
-
-        Prato prato = pratoController.getPratoById(pratoId);
-        if (prato != null) {
-            System.out.println("\nListando pratos da categoria " + prato.getCategoria() + ":");
-            pratoController.listarPratosPorCategoria(prato.getCategoria());
-            System.out.print("Selecione o id do novo prato: ");
-            String novoPratoId = scanner.nextLine();
-
-            menuController.editarPratoNoMenu(menuId, pratoId, novoPratoId);
-
-            // Obter o dia atual e a unidade de tempo atual da simulação
-            int currentDay = simulacaoDiaController.getDiaAtual();
-            int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
-
-            // Criação do log
-            String logType = "ACTION";
-            String logDescription = String.format("Prato editado no menu ID: %d, prato antigo ID: %d, novo prato ID: %s",
-                    menuId, pratoId, novoPratoId);
-
-            logsController.criarLog(currentDay, currentHour, logType, logDescription);
-
+        if(pratoEditadoNoMenu) {
             System.out.println("Prato editado com sucesso no menu!");
-        } else {
+        }
+        else {
             System.out.println("Prato não encontrado.");
         }
     }

@@ -1,7 +1,6 @@
 package View;
 
 import Controller.*;
-import Model.Configuracao;
 
 import java.util.Scanner;
 
@@ -20,9 +19,8 @@ public class MenuPrincipalView {
         this.scanner = new Scanner(System.in);
         this.configuracaoController = ConfiguracaoController.getInstancia();
         this.simulacaoDiaController = SimulacaoDiaController.getInstance();
-        Configuracao configuracao = configuracaoController.getConfiguracao();
-        this.reservaController = ReservaController.getInstance(configuracao);
-        this.mesaController = MesaController.getInstance(configuracao, reservaController);
+        this.reservaController = ReservaController.getInstance();
+        this.mesaController = MesaController.getInstance();
         this.pratoController = new PratoController();
         this.menuController = new MenuController();
         this.logsController = LogsController.getInstance(); // Define o tamanho máximo de logs

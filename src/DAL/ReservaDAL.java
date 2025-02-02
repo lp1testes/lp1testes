@@ -1,6 +1,6 @@
 package DAL;
 
-import Model.Configuracao;
+import Utils.Configuracao;
 import Model.Reserva;
 import java.io.*;
 import java.util.HashSet;
@@ -9,10 +9,9 @@ import java.util.Set;
 public class ReservaDAL {
 
     private static final int MAX_RESERVAS = 100;
-    private Configuracao configuracao;
+    private static final Configuracao configuracao = Configuracao.getInstancia();
 
-    public ReservaDAL(Configuracao configuracao) {
-        this.configuracao = configuracao;
+    public ReservaDAL() {
     }
 
     public Reserva[] carregarReservas() {

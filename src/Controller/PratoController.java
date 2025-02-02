@@ -2,23 +2,40 @@ package Controller;
 
 import DAL.ConfiguracaoDAL;
 import DAL.PratoDAL;
-import Model.Configuracao;
+import Utils.Configuracao;
 import Model.Prato;
+
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class PratoController {
 
+    private static PratoController instance;
     private Prato[] pratos;
     private PratoDAL pratoDAL;
     private ConfiguracaoDAL configuracaoDAL;
-    private Configuracao configuracao;
+    private Configuracao configuracao = Configuracao.getInstancia();
+    private static final SimulacaoDiaController simulacaoDiaController = SimulacaoDiaController.getInstance();
+    private static final LogsController logsController = LogsController.getInstance();
+    private static final MenuController menuController = MenuController.getInstance();
+    private static final MesaController mesaController = MesaController.getInstance();
 
     public PratoController() {
-        pratoDAL = new PratoDAL();
-        pratos = pratoDAL.carregarPratos();
-        configuracaoDAL = new ConfiguracaoDAL();
-        configuracao = new Configuracao();
+        pratoDAL                = new PratoDAL();
+        pratos                  = pratoDAL.carregarPratos();
+        configuracaoDAL         = new ConfiguracaoDAL();
         configuracaoDAL.carregarConfiguracoes(configuracao);
+        //simulacaoDiaController  = new SimulacaoDiaController();
+        //logsController          = new LogsController();
+        //menuController          = new MenuController();
+        //mesaController          = new MesaController();
+    }
+
+    public static synchronized PratoController getInstance() {
+        if (instance == null) {
+            instance = new PratoController();
+        }
+        return instance;
     }
 
     public Prato[] getPratos() {
@@ -276,5 +293,211 @@ public class PratoController {
             }
         }
         return null;
+    }
+
+    public boolean criarPratoGerirMenusView(String nome, Scanner scanner) {
+
+        String categoria    = validarCategoria(scanner);
+        double precoCusto   = validarPreco(scanner, "Preço de custo");
+        double precoVenda   = validarPreco(scanner, "Preço de venda");
+
+        int tempoPreparacao = validarTempoPreparacao(scanner);
+
+        boolean disponivel = validarDisponibilidade(scanner);
+
+        Prato novoPrato = new Prato(null, nome, categoria, precoCusto, precoVenda, tempoPreparacao, disponivel);
+        adicionarPrato(novoPrato);
+
+        // Obter o dia atual e a unidade de tempo atual da simulação
+        int currentDay = simulacaoDiaController.getDiaAtual();
+        int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+        // Criação do log
+        String logType = "ACTION";
+        String logDescription = String.format("Prato criado: %s, Categoria: %s, Custo: %.2f, Venda: %.2f, Tempo: %d, Disponível: %b",
+                nome, categoria, precoCusto, precoVenda, tempoPreparacao, disponivel);
+
+        logsController.criarLog(currentDay, currentHour, logType, logDescription);
+
+        return true;
+    }
+
+    public boolean editarPratoGerirMenusView(Scanner scanner){
+
+        Prato[] pratos = getPratos();
+
+        System.out.println("\n-- Lista de Pratos --");
+
+        for (Prato prato : pratos) {
+            if (prato != null) {
+                System.out.println("ID: " + prato.getId() + ", Nome: " + prato.getNome() + ", Categoria: " + prato.getCategoria() + ", Preço de Custo: " + prato.getPrecoCusto() + ", Preço de Venda: " + prato.getPrecoVenda() + ", Tempo de Preparação: " + prato.getTempoPreparacao() + ", Disponível: " + prato.isDisponivel());
+            }
+        }
+
+        Prato pratoParaEditar = validarPratoParaEditar(scanner);
+
+        if (pratoParaEditar != null) {
+
+            editarPrato(scanner, pratoParaEditar);
+
+            // Obter o dia atual e a unidade de tempo atual da simulação
+            int currentDay = simulacaoDiaController.getDiaAtual();
+            int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+            // Criação do log
+            String logType = "ACTION";
+            String logDescription = String.format("Prato editado: %s, Categoria: %s, Custo: %.2f, Venda: %.2f, Tempo: %d, Disponível: %b",
+                    pratoParaEditar.getNome(), pratoParaEditar.getCategoria(), pratoParaEditar.getPrecoCusto(), pratoParaEditar.getPrecoVenda(), pratoParaEditar.getTempoPreparacao(), pratoParaEditar.isDisponivel());
+
+            logsController.criarLog(currentDay, currentHour, logType, logDescription);
+
+            return true;
+        }
+        return  false;
+    }
+
+    public boolean removerPratoGerirMenusView(Scanner scanner){
+
+        Prato[] pratos = getPratos();
+
+        System.out.println("\n-- Lista de Pratos --");
+
+        for (Prato prato : pratos) {
+
+            if (prato != null) {
+
+                System.out.println("ID: " + prato.getId() + ", Nome: " + prato.getNome() + ", Categoria: " + prato.getCategoria() + ", Preço de Custo: " + prato.getPrecoCusto() + ", Preço de Venda: " + prato.getPrecoVenda() + ", Tempo de Preparação: " + prato.getTempoPreparacao() + ", Disponível: " + prato.isDisponivel());
+            }
+        }
+
+        System.out.print("ID do prato a remover: ");
+
+        int id = scanner.nextInt();
+        scanner.nextLine();
+
+        removerPrato(id);
+
+        // Obter o dia atual e a unidade de tempo atual da simulação
+        int currentDay = simulacaoDiaController.getDiaAtual();
+        int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+        // Criação do log
+        String logType = "ACTION";
+        String logDescription = String.format("Prato removido: ID %d", id);
+
+        logsController.criarLog(currentDay, currentHour, logType, logDescription);
+
+        return true;
+    }
+
+    public void listarPratosGerirMenusView(){
+
+        Prato[] pratos = getPratos();
+
+        System.out.println("\n-- Lista de Pratos --");
+
+        for (Prato prato : pratos) {
+
+            if (prato != null) {
+
+                System.out.println("ID: " + prato.getId() + ", Nome: " + prato.getNome() + ", Categoria: " + prato.getCategoria() + ", Preço de Custo: " + prato.getPrecoCusto() + ", Preço de Venda: " + prato.getPrecoVenda() + ", Tempo de Preparação: " + prato.getTempoPreparacao() + ", Disponível: " + prato.isDisponivel());
+            }
+        }
+
+        // Obter o dia atual e a unidade de tempo atual da simulação
+        int currentDay = simulacaoDiaController.getDiaAtual();
+        int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+        // Criação do log
+        String logType = "INFO";
+        String logDescription = "Listagem de pratos exibida";
+
+        logsController.criarLog(currentDay, currentHour, logType, logDescription);
+    }
+
+    public boolean editarPratoNoMenuGerirMenusView(Scanner scanner){
+
+        System.out.print("\nID do menu: ");
+        int menuId = scanner.nextInt();
+        scanner.nextLine();
+
+        System.out.print("ID do prato a editar: ");
+        int pratoId = scanner.nextInt();
+        scanner.nextLine();
+
+        Prato prato = getPratoById(pratoId);
+
+        if (prato != null) {
+
+            System.out.println("\nListando pratos da categoria " + prato.getCategoria() + ":");
+            listarPratosPorCategoria(prato.getCategoria());
+
+            System.out.print("Selecione o id do novo prato: ");
+            String novoPratoId = scanner.nextLine();
+
+            menuController.editarPratoNoMenu(menuId, pratoId, novoPratoId);
+
+            // Obter o dia atual e a unidade de tempo atual da simulação
+            int currentDay = simulacaoDiaController.getDiaAtual();
+            int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+            // Criação do log
+            String logType = "ACTION";
+            String logDescription = String.format("Prato editado no menu ID: %d, prato antigo ID: %d, novo prato ID: %s",
+                    menuId, pratoId, novoPratoId);
+
+            logsController.criarLog(currentDay, currentHour, logType, logDescription);
+
+            return true;
+        } else {
+            return  false;
+        }
+    }
+
+    public void listarPratosRegistarPedidosView(Scanner scanner, int idMesa, int clienteIndex){
+
+        Prato[] pratos = getPratos();
+
+        if (pratos.length == 0) {
+            System.out.println("Não há pratos disponíveis no momento.");
+            return;
+        }
+
+        System.out.println("\n-- Pratos Disponíveis --");
+        for (Prato prato : pratos) {
+            if (prato != null && prato.isDisponivel()) {
+                System.out.println("ID: " + prato.getId() + " - Nome: " + prato.getNome() + " - Preço: " + prato.getPrecoVenda());
+            }
+        }
+
+        int idPrato = -1;
+        while (idPrato == -1) {
+            System.out.print("Escolha o ID do prato: ");
+            try {
+                idPrato = scanner.nextInt();
+                scanner.nextLine(); // Limpar o buffer
+            } catch (InputMismatchException e) {
+                System.out.println("Entrada inválida! Por favor, insira um número inteiro.");
+                scanner.nextLine(); // Limpar o buffer
+            }
+        }
+
+        Prato pratoSelecionado = getPratoById(idPrato);
+        if (pratoSelecionado != null && pratoSelecionado.isDisponivel()) {
+            mesaController.adicionarPratoAoPedido(idMesa, pratoSelecionado);
+            System.out.printf("Prato %s adicionado ao pedido do Cliente %d.%n", pratoSelecionado.getNome(), clienteIndex + 1);
+
+            // Obter o dia atual e a unidade de tempo atual da simulação
+            int currentDay = simulacaoDiaController.getDiaAtual();
+            int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+            // Criação do log
+            String logType = "ACTION";
+            String logDescription = String.format("Prato %s (ID: %d) adicionado ao pedido da mesa ID: %d", pratoSelecionado.getNome(), pratoSelecionado.getId(), idMesa);
+
+            logsController.criarLog(currentDay, currentHour, logType, logDescription);
+        } else {
+            System.out.println("Prato inválido ou não disponível.");
+        }
     }
 }

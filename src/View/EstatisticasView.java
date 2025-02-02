@@ -1,11 +1,10 @@
 package View;
 
 import java.util.Scanner;
+
 import Controller.EstatisticaController;
 import Controller.SimulacaoDiaController;
 import Controller.ConfiguracaoController;
-import Model.Configuracao;
-import Model.Prato;
 
 public class EstatisticasView {
     private EstatisticaController estatisticaController;
@@ -14,8 +13,7 @@ public class EstatisticasView {
 
     public EstatisticasView() {
         this.configuracaoController = ConfiguracaoController.getInstancia();
-        Configuracao configuracao = configuracaoController.getConfiguracao();
-        this.estatisticaController = new EstatisticaController(configuracao);
+        this.estatisticaController = new EstatisticaController();
         this.simulacaoDiaController = SimulacaoDiaController.getInstance();
     }
 
@@ -65,12 +63,10 @@ public class EstatisticasView {
     }
 
     private void mostrarPratoMaisPedido() {
-        Prato prato = estatisticaController.mostrarPratoMaisPedido();
-        if (prato != null) {
-            System.out.println("O prato mais pedido é: " + prato.getNome());
-        } else {
-            System.out.println("Nenhum prato foi pedido.");
-        }
+
+        String retornoPratoMaisPedido = estatisticaController.mostrarPratoMaisPedido();
+
+        System.out.println(retornoPratoMaisPedido);
     }
 
     private void mostrarClientesAtendidos() {

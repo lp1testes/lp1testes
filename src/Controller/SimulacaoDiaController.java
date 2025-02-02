@@ -1,7 +1,9 @@
 package Controller;
 import Model.*;
-import Model.Configuracao;
+import Utils.Configuracao;
 import Model.SimulacaoDia;
+import Utils.Logs;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
@@ -10,25 +12,23 @@ import java.util.Set;
 public class SimulacaoDiaController {
     private static SimulacaoDiaController instance;
     private final SimulacaoDia simulacaoDia;
-    private final ConfiguracaoController configuracaoController;
-    private final ReservaController reservaController;
-    private final MesaController mesaController;
-    private LogsController logsController;
+    private static final ConfiguracaoController configuracaoController = ConfiguracaoController.getInstancia();
+    private static final ReservaController reservaController = ReservaController.getInstance();
+    private static final MesaController mesaController = MesaController.getInstance();
+    private static final LogsController logsController = LogsController.getInstance();
     private double prejuizoTotal;
     private double totalGanho;
     private Set<Integer> reservasNotificadas;
 
-    private SimulacaoDiaController() {
-        this.configuracaoController = ConfiguracaoController.getInstancia();
+    SimulacaoDiaController() {
+        //this.configuracaoController = ConfiguracaoController.getInstancia();
         this.simulacaoDia = new SimulacaoDia();
         this.prejuizoTotal = 0.0;
         this.totalGanho = 0.0;
         this.reservasNotificadas = new HashSet<>();
-
-        Configuracao configuracao = configuracaoController.getConfiguracao();
-        this.reservaController = ReservaController.getInstance(configuracao);
-        this.mesaController = MesaController.getInstance(configuracao, reservaController);
-        this.logsController = LogsController.getInstance(); // Usando a instância Singleton
+        //this.mesaController = MesaController.getInstance();
+        //this.logsController = LogsController.getInstance(); // Usando a instância Singleton
+        //this.reservaController = ReservaController.getInstance();
     }
 
     public static synchronized SimulacaoDiaController getInstance() {
@@ -37,6 +37,7 @@ public class SimulacaoDiaController {
         }
         return instance;
     }
+
 
     public int getDiaAtual() {
         return simulacaoDia.getDia() != null ? simulacaoDia.getDia() : 1;

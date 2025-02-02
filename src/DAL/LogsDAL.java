@@ -2,8 +2,8 @@ package DAL;
 
 import Controller.ConfiguracaoController;
 import Controller.SimulacaoDiaController;
-import Model.Configuracao;
-import Model.Logs;
+import Utils.Configuracao;
+import Utils.Logs;
 import Model.SimulacaoDia;
 
 import java.io.BufferedWriter;

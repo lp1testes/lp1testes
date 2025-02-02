@@ -1,6 +1,6 @@
 package Controller;
 
-import Model.Logs;
+import Utils.Logs;
 
 public class DesempenhoFinanceiroController {
     private LogsController logsController;

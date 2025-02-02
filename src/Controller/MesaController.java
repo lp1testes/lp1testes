@@ -1,46 +1,43 @@
 package Controller;
 
 import DAL.MesaDAL;
-import Model.Configuracao;
-import Model.Mesa;
-import Model.Reserva;
-import Model.MesaReserva;
-import Model.Prato;
-import Model.Menu;
-import Model.Pedido;
+import Model.*;
+import Utils.Configuracao;
 
 import java.util.*;
 
 public class MesaController {
-    private static MesaController instance;
     private Mesa[] mesas;
     private MesaDAL mesaDAL;
-    private ReservaController reservaController;
     private MesaReserva[] mesaReservas;
     private Pedido[] pedidos;
     private int mesaReservaCount;
     private int pedidoCount;
     private static final int LIMITE = 100;
+    private static MesaController instance;
+    private static final ReservaController reservaController = ReservaController.getInstance();
+    private static final SimulacaoDiaController simulacaoDiaController = SimulacaoDiaController.getInstance();
+    private static final LogsController logsController = LogsController.getInstance();
+    private static final ConfiguracaoController configuracaoController = ConfiguracaoController.getInstancia();
 
-    private MesaController(Configuracao configuracao, ReservaController reservaController) {
-        mesaDAL = new MesaDAL(configuracao);
-        mesas = mesaDAL.carregarMesas();
-        this.reservaController = reservaController;
-        this.mesaReservas = new MesaReserva[LIMITE]; // Tamanho máximo definido em 100
-        this.pedidos = new Pedido[LIMITE];
-        this.mesaReservaCount = 0;
-        this.pedidoCount = 0;
+    MesaController() {
+        mesaDAL                     = new MesaDAL();
+        mesas                       = mesaDAL.carregarMesas();
+        this.mesaReservas           = new MesaReserva[LIMITE]; // Tamanho máximo definido em 100
+        this.pedidos                = new Pedido[LIMITE];
+        this.mesaReservaCount       = 0;
+        this.pedidoCount            = 0;
+        //this.simulacaoDiaController = SimulacaoDiaController.getInstance();
+        //this.logsController         = new LogsController();
+        //this.reservaController      = ReservaController.getInstance();
+        //this.configuracaoController = new ConfiguracaoController();
     }
 
-    public static synchronized MesaController getInstance(Configuracao configuracao, ReservaController reservaController) {
+    public static synchronized MesaController getInstance() {
         if (instance == null) {
-            instance = new MesaController(configuracao, reservaController);
+            instance = new MesaController();
         }
         return instance;
-    }
-
-    public void setReservaController(ReservaController reservaController) {
-        this.reservaController = reservaController;
     }
 
     public Mesa[] getMesas() {
@@ -511,4 +508,152 @@ public class MesaController {
         }
         return count;
     }
+
+    public boolean registarMesas(Scanner scanner){
+
+        int capacidade = 0;
+        boolean valido = false;
+
+        while (!valido) {
+            System.out.print("Insira a capacidade da mesa (ou 000 para cancelar): ");
+            String input = scanner.nextLine().trim();
+
+            if (input.equals("000")) {
+                return false;
+            } else {
+                try {
+                    capacidade = Integer.parseInt(input);
+                    if (capacidade > 0) {
+                        valido = true;
+                    } else {
+                        System.out.println("Capacidade inválida! A capacidade não pode ser menor ou igual a zero.");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Entrada inválida! Por favor, insira um número inteiro.");
+                }
+            }
+        }
+
+        Mesa novaMesa = new Mesa(null, capacidade, false);
+        adicionarMesa(novaMesa);
+
+        // Obter o dia atual e a unidade de tempo atual da simulação
+        int currentDay = simulacaoDiaController.getDiaAtual();
+        int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+        // Criação do log
+        String logType = "ACTION";
+        String logDescription = String.format("Mesa registrada: Capacidade %d", capacidade);
+
+        logsController.criarLog(currentDay, currentHour, logType, logDescription);
+
+        return true;
+    }
+
+    public void verificarEstadoMesas(){
+
+            Mesa[] mesas = getMesas();
+            Arrays.sort(mesas, new Comparator<Mesa>() {
+                @Override
+                public int compare(Mesa m1, Mesa m2) {
+                    if (m1 == null && m2 == null) {
+                        return 0;
+                    }
+                    if (m1 == null) {
+                        return 1;
+                    }
+                    if (m2 == null) {
+                        return -1;
+                    }
+                    return Integer.compare(m1.getId(), m2.getId());
+                }
+            });
+
+            System.out.println("\n-- Estado das Mesas --");
+
+            for (Mesa mesa : mesas) {
+                if (mesa != null) {
+                    String estado = mesa.isOcupada() ? "Ocupada" : "Livre";
+                    System.out.println("Mesa " + mesa.getId() + ": Capacidade " + mesa.getCapacidade() + " - " + estado);
+                }
+            }
+
+            // Obter o dia atual e a unidade de tempo atual da simulação
+            int currentDay = simulacaoDiaController.getDiaAtual();
+            int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+            // Criação do log
+            String logType = "INFO";
+            String logDescription = "Estado das mesas verificado";
+
+            logsController.criarLog(currentDay, currentHour, logType, logDescription);
+    }
+
+    public String associarPedido(Scanner scanner){
+
+        int tempoAtual = simulacaoDiaController.getUnidadeTempoAtual();
+        int unidadesTempoParaPedido = configuracaoController.getConfiguracao().getUnidadesTempoParaPedido();
+
+        Mesa[] mesasOcupadas = listarMesasOcupadasComReservasNaoAtendidas(tempoAtual, unidadesTempoParaPedido);
+        if (mesasOcupadas.length == 0) {
+            return "Não há mesas ocupadas com reservas não atendidas no momento.";
+        }
+
+        System.out.println("\n-- Mesas Ocupadas com Reservas Não Atendidas --");
+        for (Mesa mesa : mesasOcupadas) {
+            if (mesa != null) {
+                Reserva reserva = getClienteDaMesa(mesa.getId());
+                System.out.println("Mesa " + mesa.getId() + " - Reserva: " + reserva.getNome() + " (ID da Reserva: " + reserva.getId() + ")");
+            }
+        }
+
+        int idMesa = -1;
+        while (idMesa == -1) {
+            System.out.print("\nID da mesa para registrar o pedido: ");
+            try {
+                idMesa = scanner.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.println("Entrada inválida! Por favor, insira um número inteiro.");
+                scanner.nextLine();
+            }
+        }
+        scanner.nextLine();
+
+        Reserva reserva = getClienteDaMesa(idMesa);
+        if (reserva == null) {
+            return "Nenhuma reserva encontrada para a mesa " + idMesa;
+        }
+
+        int tempoAssociacao = reserva.getTempoChegada();
+        int tempoLimite = tempoAssociacao + unidadesTempoParaPedido;
+
+        if (tempoAtual < tempoAssociacao + 1) {
+            return "O cliente terá que esperar uma unidade de tempo para fazer o pedido.";
+        }
+
+        if (tempoAtual > tempoLimite) {
+            removerReservaDaMesa(idMesa);
+            return "Tempo limite para registrar o pedido expirou. Clientes da reserva " + reserva.getNome() + " foram embora.";
+        }
+
+        System.out.println("Clientes da reserva " + reserva.getNome() + " estão prontos para fazer o pedido.");
+
+        registrarPedido(idMesa, tempoAtual, scanner);
+
+        marcarReservaComoAtendida(idMesa);
+
+        // Obter o dia atual e a unidade de tempo atual da simulação
+        int currentDay = simulacaoDiaController.getDiaAtual();
+        int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+        // Criação do log
+        String logType = "ACTION";
+        String logDescription = String.format("Pedido associado à mesa ID: %d, Reserva: %s (ID da Reserva: %d)", idMesa, reserva.getNome(), reserva.getId());
+
+        logsController.criarLog(currentDay, currentHour, logType, logDescription);
+
+        return "Pedido associado";
+    }
+
+
 }

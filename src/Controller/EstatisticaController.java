@@ -1,9 +1,8 @@
 package Controller;
 
-import Model.Logs;
+import Utils.Logs;
 import Model.Prato;
 import Model.Reserva;
-import Model.Configuracao;
 import java.util.Arrays;
 
 public class EstatisticaController {
@@ -11,13 +10,13 @@ public class EstatisticaController {
     private PratoController pratoController;
     private ReservaController reservaController;
 
-    public EstatisticaController(Configuracao configuracao) {
+    public EstatisticaController() {
         this.logsController = LogsController.getInstance();
         this.pratoController = new PratoController();
-        this.reservaController = ReservaController.getInstance(configuracao);
+        this.reservaController = ReservaController.getInstance();
     }
 
-    public Prato mostrarPratoMaisPedido() {
+    public String mostrarPratoMaisPedido() {
         Logs[] logs = logsController.obterTodosLogs();
         Prato[] pratos = pratoController.getPratos();
 
@@ -65,9 +64,11 @@ public class EstatisticaController {
 
         if (pratoMaisPedido != null) {
             System.out.println("Total de pedidos do prato mais pedido: " + maxPedidos);
+            return "O prato mais pedido é: " + pratoMaisPedido.getNome();
         }
-
-        return pratoMaisPedido;
+        else{
+            return "Nenhum prato foi pedido.";
+        }
     }
     public double calcularTempoMedioEsperaMesa() {
         Reserva[] reservas = reservaController.getReservas();

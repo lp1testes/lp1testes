@@ -1,7 +1,8 @@
-package Model;
+package Utils;
 
 public class Configuracao {
 
+    private static Configuracao instancia;
     private String caminhoFicheiros;
     private String separadorFicheiros;
     private int unidadesTempoDia;
@@ -11,18 +12,14 @@ public class Configuracao {
     private double custoClienteNaoAtendido;
     private String password;
 
-    public Configuracao() {
+    private Configuracao() {
     }
 
-    public Configuracao(String caminhoFicheiros, String separadorFicheiros, int unidadesTempoDia, int unidadesTempoIrParaMesa, int unidadesTempoParaPedido, int unidadesTempoParaPagamento, double custoClienteNaoAtendido, String password) {
-        this.caminhoFicheiros = caminhoFicheiros;
-        this.separadorFicheiros = separadorFicheiros;
-        this.unidadesTempoDia = unidadesTempoDia;
-        this.unidadesTempoIrParaMesa = unidadesTempoIrParaMesa;
-        this.unidadesTempoParaPedido = unidadesTempoParaPedido;
-        this.unidadesTempoParaPagamento = unidadesTempoParaPagamento;
-        this.custoClienteNaoAtendido = custoClienteNaoAtendido;
-        this.password = password;
+    public static Configuracao getInstancia(){
+        if(instancia == null){
+            instancia = new Configuracao();
+        }
+        return instancia;
     }
 
     public String getCaminhoFicheiros() {

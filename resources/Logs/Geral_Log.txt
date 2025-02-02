@@ -1,1 +1,8 @@
 0;0;2025-01-31 20:43:33;INFO;Listagem de menus exibida
+0;0;2025-02-01 15:55:18;INFO;Estado das mesas verificado
+0;0;2025-02-02 11:21:19;INFO;Estado das mesas verificado
+0;0;2025-02-02 11:21:40;INFO;Listagem de pratos exibida
+0;0;2025-02-02 11:38:30;INFO;Estado das mesas verificado
+0;0;2025-02-02 11:38:46;INFO;Listagem de menus exibida
+0;0;2025-02-02 11:39:03;INFO;Listagem de pratos exibida
+0;0;2025-02-02 11:39:20;INFO;Pedidos atendidos listados para a mesa ID: 1

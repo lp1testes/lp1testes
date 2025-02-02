@@ -1,7 +1,7 @@
 package Controller;
 
 import DAL.LogsDAL;
-import Model.Logs;
+import Utils.Logs;
 
 public class LogsController {
     private static final int MAX_LOGS = 100; // Valor padrão para o tamanho máximo de logs
@@ -11,7 +11,7 @@ public class LogsController {
     private int logCount;
 
     // Construtor sem parâmetros, usando o valor padrão para o tamanho máximo
-    private LogsController() {
+    LogsController() {
         this.logs = new Logs[MAX_LOGS];
         this.logCount = 0;
     }

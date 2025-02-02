@@ -1,10 +1,11 @@
 package View;
 
+import java.util.Scanner;
+
 import Controller.DesempenhoFinanceiroController;
 import Controller.LogsController;
-import Model.Logs;
 
-import java.util.Scanner;
+import Utils.Logs;
 
 public class DesempenhoFinanceiroView {
     private DesempenhoFinanceiroController desempenhoFinanceiroController;
@@ -61,7 +62,7 @@ public class DesempenhoFinanceiroView {
         Logs[] logs = logsController.obterTodosLogs();
         System.out.println("\n-- Logs em Memória --");
         for (Logs log : logs) {
-            System.out.println(log.getDay() + "/" + log.getHour() + " - " + log.getLogType() + ": " + log.getLogDescription());
+            System.out.println(log);
         }
     }
 

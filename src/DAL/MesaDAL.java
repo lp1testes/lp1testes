@@ -1,18 +1,17 @@
 package DAL;
 
 import Model.Mesa;
-import Model.Configuracao;
+import Utils.Configuracao;
 import java.io.*;
 import java.util.HashSet;
 import java.util.Set;
 
 public class MesaDAL {
 
-    private Configuracao configuracao;
+    private static final Configuracao configuracao = Configuracao.getInstancia();
     private static final int MAX_MESAS = 100;
 
-    public MesaDAL(Configuracao configuracao) {
-        this.configuracao = configuracao;
+    public MesaDAL() {
     }
 
     public Mesa[] carregarMesas() {

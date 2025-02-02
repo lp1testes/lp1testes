@@ -1,6 +1,6 @@
 package DAL;
 
-import Model.Configuracao;
+import Utils.Configuracao;
 import java.io.*;
 
 public class ConfiguracaoDAL {
