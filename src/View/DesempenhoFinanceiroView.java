@@ -20,7 +20,7 @@ public class DesempenhoFinanceiroView {
         int opcao;
 
         do {
-            listarTodosLogs(); // Lista todos os logs antes de exibir o menu
+            listarTodosLogs();
             System.out.println("\n-- Gestão Financeira --");
             System.out.println("1. Exibir Total Faturado");
             System.out.println("2. Exibir Total de Gastos");
@@ -31,7 +31,7 @@ public class DesempenhoFinanceiroView {
             System.out.print("Escolha uma opção: ");
 
             opcao = scanner.nextInt();
-            scanner.nextLine(); // Consome a nova linha deixada pelo nextInt()
+            scanner.nextLine();
 
             switch (opcao) {
                 case 1:

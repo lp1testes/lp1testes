@@ -64,11 +64,14 @@ public class DesempenhoFinanceiroController {
         int[] range = parsePeriodo(periodo);
         if (range == null) return 0;
 
+
         Logs[] logs = logsController.buscarLogsPorPeriodo(range[0], range[1], range[2], range[3]);
         int numeroPedidosAtendidos = 0;
+
+
         for (Logs log : logs) {
-            if (log.getLogType().equals("FINANCE")) {
-                numeroPedidosAtendidos += extrairValorDoLog(log, "Pedidos Atendidos").intValue();
+            if (log.getLogType().equals("ACTION") && log.getLogDescription().startsWith("Pagamento efetuado para a mesa")) {
+                numeroPedidosAtendidos++;
             }
         }
         return numeroPedidosAtendidos;
@@ -78,11 +81,14 @@ public class DesempenhoFinanceiroController {
         int[] range = parsePeriodo(periodo);
         if (range == null) return 0;
 
+
         Logs[] logs = logsController.buscarLogsPorPeriodo(range[0], range[1], range[2], range[3]);
         int numeroPedidosNaoAtendidos = 0;
+
+
         for (Logs log : logs) {
-            if (log.getLogType().equals("FINANCE")) {
-                numeroPedidosNaoAtendidos += extrairValorDoLog(log, "Pedidos Não Atendidos").intValue();
+            if (log.getLogType().equals("ACTION") && log.getLogDescription().startsWith("Pedido não atendido para a mesa")) {
+                numeroPedidosNaoAtendidos++;
             }
         }
         return numeroPedidosNaoAtendidos;

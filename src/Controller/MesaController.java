@@ -430,11 +430,19 @@ public class MesaController {
         }
 
         int tempoMaximoPreparo = getTempoMaximoPreparo(pedido);
+        int tempoFinalPreparo = pedido.getTempoPedido() + tempoMaximoPreparo;
+
         System.out.println("Tempo atual: " + tempoAtual);
         System.out.println("Tempo do pedido: " + pedido.getTempoPedido());
         System.out.println("Tempo máximo de preparação: " + tempoMaximoPreparo);
+        System.out.println("Tempo final de preparo: " + tempoFinalPreparo);
 
-        boolean podeEfetuar = tempoAtual >= pedido.getTempoPedido() + tempoMaximoPreparo;
+        if (tempoAtual == tempoFinalPreparo) {
+            System.out.println("Você deve esperar mais uma unidade de tempo para efetuar o pagamento.");
+            return false;
+        }
+
+        boolean podeEfetuar = tempoAtual > tempoFinalPreparo;
         System.out.println("Pode efetuar pagamento: " + podeEfetuar);
 
         return podeEfetuar;
@@ -466,8 +474,12 @@ public class MesaController {
             return false;
         }
 
+
         Configuracao configuracao = ConfiguracaoController.getInstancia().getConfiguracao();
-        int tempoLimitePagamento = pedido.getTempoPedido() + getTempoMaximoPreparo(pedido) + configuracao.getUnidadesTempoParaPagamento();
+
+
+        int tempoLimitePagamento = pedido.getTempoPedido() + getTempoMaximoPreparo(pedido) + configuracao.getUnidadesTempoParaPagamento() + 1;
+
 
         return tempoAtual > tempoLimitePagamento;
     }
