@@ -1,0 +1,7 @@
+2;1;2025-02-02 18:14:51;INFO;Novo dia iniciado
+2;1;2025-02-02 18:14:52;FINANCE;Avanço de unidade de tempo. Data: 2025-02-02 18:14:52, Dia: 2, Unidade de Tempo Atual: 1, Perdas Totais: 38,00, Total Ganho: 0,00, Lucro: -38,00
+2;2;2025-02-02 18:14:52;FINANCE;Avanço de unidade de tempo. Data: 2025-02-02 18:14:52, Dia: 2, Unidade de Tempo Atual: 2, Perdas Totais: 38,00, Total Ganho: 0,00, Lucro: -38,00
+2;1;2025-02-02 18:18:34;INFO;Novo dia iniciado
+2;1;2025-02-02 18:18:34;FINANCE;Avanço de unidade de tempo. Data: 2025-02-02 18:18:34, Dia: 2, Unidade de Tempo Atual: 1, Perdas Totais: 38,00, Total Ganho: 0,00, Lucro: -38,00
+2;2;2025-02-02 18:18:35;FINANCE;Avanço de unidade de tempo. Data: 2025-02-02 18:18:35, Dia: 2, Unidade de Tempo Atual: 2, Perdas Totais: 38,00, Total Ganho: 0,00, Lucro: -38,00
+2;1;2025-02-02 18:24:08;INFO;Novo dia iniciado

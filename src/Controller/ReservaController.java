@@ -182,7 +182,6 @@ public class ReservaController {
     }
 
     public String atribuirClientesMesas(Scanner scanner) {
-
         int tempoAtual = simulacaoDiaController.getUnidadeTempoAtual();
         int currentDay = simulacaoDiaController.getDiaAtual();
         int unitsForAssignment = configuracaoController.getConfiguracao().getUnidadesTempoIrParaMesa();
@@ -229,16 +228,20 @@ public class ReservaController {
             int tempoLimite = tempoChegada + unitsForAssignment;
 
             if (tempoAtual <= tempoLimite) {
-                mesaController.atribuirClientesAMesa(idMesa, reserva, tempoAtual);
+                boolean sucesso = mesaController.atribuirClientesAMesa(idMesa, reserva, tempoAtual);
 
-                // Criação do log
-                String logType = "ACTION";
-                String logDescription = String.format("Clientes da reserva %s (ID: %d) foram atribuídos à mesa %d. Número de Pessoas: %d, Tempo de Chegada: %d",
-                        reserva.getNome(), reserva.getId(), idMesa, reserva.getNumeroPessoas(), reserva.getTempoChegada());
+                if (sucesso) {
+                    // Criação do log
+                    String logType = "ACTION";
+                    String logDescription = String.format("Clientes da reserva %s (ID: %d) foram atribuídos à mesa %d. Número de Pessoas: %d, Tempo de Chegada: %d",
+                            reserva.getNome(), reserva.getId(), idMesa, reserva.getNumeroPessoas(), reserva.getTempoChegada());
 
-                logsController.criarLog(currentDay, tempoAtual, logType, logDescription);
+                    logsController.criarLog(currentDay, tempoAtual, logType, logDescription);
 
-                return "Clientes atribuídos à mesa com sucesso!";
+                    return "Clientes atribuídos à mesa com sucesso!";
+                } else {
+                    return "Mesa ocupada ou capacidade insuficiente. Clientes não foram atribuídos à mesa.";
+                }
             } else {
                 return "Tempo limite para atribuição da reserva " + reserva.getNome() + " expirou.";
             }

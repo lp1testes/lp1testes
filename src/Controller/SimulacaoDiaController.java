@@ -6,7 +6,9 @@ import Utils.Logs;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class SimulacaoDiaController {
@@ -18,17 +20,13 @@ public class SimulacaoDiaController {
     private static final LogsController logsController = LogsController.getInstance();
     private double prejuizoTotal;
     private double totalGanho;
-    private Set<Integer> reservasNotificadas;
+    private Map<Integer, Set<Integer>> reservasNotificadasPorDia;
 
     SimulacaoDiaController() {
-        //this.configuracaoController = ConfiguracaoController.getInstancia();
         this.simulacaoDia = new SimulacaoDia();
         this.prejuizoTotal = 0.0;
         this.totalGanho = 0.0;
-        this.reservasNotificadas = new HashSet<>();
-        //this.mesaController = MesaController.getInstance();
-        //this.logsController = LogsController.getInstance(); // Usando a instância Singleton
-        //this.reservaController = ReservaController.getInstance();
+        this.reservasNotificadasPorDia = new HashMap<>();
     }
 
     public static synchronized SimulacaoDiaController getInstance() {
@@ -37,7 +35,6 @@ public class SimulacaoDiaController {
         }
         return instance;
     }
-
 
     public int getDiaAtual() {
         return simulacaoDia.getDia() != null ? simulacaoDia.getDia() : 1;
@@ -55,6 +52,9 @@ public class SimulacaoDiaController {
         simulacaoDia.setDia(novoDia);
         simulacaoDia.setUnidadeTempoAtual(1);
         simulacaoDia.setAtivo(true);
+
+        // Limpar as reservas notificadas no início de um novo dia
+        reservasNotificadasPorDia.clear();
 
         // Adicionar log para o novo dia
         Logs log = new Logs(novoDia, 1, "INFO", "Novo dia iniciado");
@@ -111,8 +111,11 @@ public class SimulacaoDiaController {
     private String verificarPagamentosEReservasExpiradas() {
         StringBuilder verificacoes = new StringBuilder();
         int tempoAtual = simulacaoDia.getUnidadeTempoAtual();
+        int diaAtual = simulacaoDia.getDia();
         Configuracao configuracao = configuracaoController.getConfiguracao();
         int unitsForAssignment = configuracao.getUnidadesTempoIrParaMesa();
+
+        Logs[] logs = logsController.obterTodosLogs();
 
         for (Mesa mesa : mesaController.getMesas()) {
             if (mesa == null || !mesa.isOcupada()) continue;
@@ -124,6 +127,29 @@ public class SimulacaoDiaController {
                     mesaController.removerReservaDaMesa(mesa.getId());
                     mesaController.marcarMesaComoDisponivel(mesa.getId());
                     verificacoes.append("\nTempo limite para pagamento expirou. Clientes da mesa ").append(mesa.getId()).append(" foram embora. Perdas Totais: ").append(pedido.getTotalCusto());
+                } else {
+                    // Verificar nos logs se os pratos foram confeccionados
+                    for (Logs log : logs) {
+                        if (log.getLogDescription().contains("Pedido associado à mesa ID: " + mesa.getId())) {
+                            String descricao = log.getLogDescription();
+                            String[] partes = descricao.split("Pratos e Menus: ");
+                            if (partes.length > 1) {
+                                String[] pratosMenus = partes[1].split(", ");
+                                for (String pratoMenu : pratosMenus) {
+                                    if (pratoMenu.contains("Tempo de Preparação: ")) {
+                                        String[] pratoInfo = pratoMenu.split("\\(Tempo de Preparação: ");
+                                        String pratoNome = pratoInfo[0].trim();
+                                        int tempoPreparo = Integer.parseInt(pratoInfo[1].replace(")", "").trim());
+
+                                        // Verificar se o tempo atual é igual ao tempo de preparação do prato
+                                        if (tempoAtual == tempoPreparo) {
+                                            verificacoes.append("\nO prato ").append(pratoNome).append(" da mesa ").append(mesa.getId()).append(" foi confeccionado.");
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
@@ -142,10 +168,15 @@ public class SimulacaoDiaController {
         if (reservaController != null) {
             Reserva[] reservasNaoAssociadas = reservaController.listarReservasNaoAssociadas(tempoAtual);
             for (Reserva reserva : reservasNaoAssociadas) {
-                if (!reservasNotificadas.contains(reserva.getId())) { // Verifica se a reserva já foi notificada
-                    int tempoChegada = reserva.getTempoChegada();
-                    int tempoLimite = tempoChegada + unitsForAssignment;
+                int reservaId = reserva.getId();
+                int tempoChegada = reserva.getTempoChegada();
+                int tempoLimite = tempoChegada + unitsForAssignment;
 
+                // Inicializar o conjunto de reservas notificadas para o dia atual, se ainda não estiver presente
+                reservasNotificadasPorDia.putIfAbsent(diaAtual, new HashSet<>());
+
+                // Verificar se a reserva já foi notificada hoje
+                if (!reservasNotificadasPorDia.get(diaAtual).contains(reservaId)) {
                     if (tempoAtual <= tempoLimite) {
                         // Reserva ainda dentro do tempo limite para ser associada a uma mesa
                         verificacoes.append("\nReserva ").append(reserva.getId()).append(" ainda está dentro do tempo limite para ser associada a uma mesa.");
@@ -153,7 +184,7 @@ public class SimulacaoDiaController {
                         // Tempo limite para associação expirou
                         prejuizoTotal += reserva.getNumeroPessoas() * configuracao.getCustoClienteNaoAtendido();
                         verificacoes.append("\nTempo limite para associação expirou. Reserva ").append(reserva.getId()).append(" não foi associada a nenhuma mesa. Clientes foram embora. Perdas Totais: ").append(reserva.getNumeroPessoas() * configuracao.getCustoClienteNaoAtendido());
-                        reservasNotificadas.add(reserva.getId()); // Adiciona a reserva à lista de notificadas
+                        reservasNotificadasPorDia.get(diaAtual).add(reservaId); // Adiciona a reserva à lista de notificadas para o dia atual
                     }
                 }
             }
@@ -172,6 +203,12 @@ public class SimulacaoDiaController {
     }
 
     public String encerrarDia() {
+        // Verificar se todas as unidades de tempo foram percorridas
+        Configuracao configuracao = configuracaoController.getConfiguracao();
+        if (simulacaoDia.getUnidadeTempoAtual() < configuracao.getUnidadesTempoDia()) {
+            return "\nNão é possível encerrar o dia antes de percorrer todas as unidades de tempo. Unidades de Tempo restantes: " + (configuracao.getUnidadesTempoDia() - simulacaoDia.getUnidadeTempoAtual());
+        }
+
         // Calcular o lucro antes de encerrar o dia
         double lucro = totalGanho - prejuizoTotal;
 
@@ -203,7 +240,6 @@ public class SimulacaoDiaController {
         return String.format("\nDia encerrado em %s. Perdas Totais: %.2f\nTotal Ganho: %.2f\nLucro: %.2f\nPedidos Atendidos: %d\nPedidos Não Atendidos: %d",
                 formattedNow, prejuizoTotal, totalGanho, lucro, pedidosAtendidos, pedidosNaoAtendidos);
     }
-
     public SimulacaoDia getSimulacaoDia() {
         return simulacaoDia;
     }
@@ -214,6 +250,7 @@ public class SimulacaoDiaController {
         if (reservaController != null) {
             notificacoes.append(reservaController.verificarChegadaReservas(tempoAtual));
         }
+        notificacoes.append(verificarPagamentosEReservasExpiradas());
         return notificacoes.toString();
     }
 

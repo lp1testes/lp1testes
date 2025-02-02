@@ -60,9 +60,9 @@ public class DesempenhoFinanceiroView {
 
     private void listarTodosLogs() {
         Logs[] logs = logsController.obterTodosLogs();
-        System.out.println("\n-- Logs em Memória --");
+        //System.out.println("\n-- Logs em Memória --");
         for (Logs log : logs) {
-            System.out.println(log);
+            //System.out.println(log);
         }
     }
 

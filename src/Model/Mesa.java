@@ -42,4 +42,9 @@ public class Mesa {
     public void setCapacidade(int capacidade) {
         this.capacidade = capacidade;
     }
+    @Override
+    public String toString() {
+        return "Mesa ID: " + id;
+    }
 }
+

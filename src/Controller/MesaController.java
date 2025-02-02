@@ -80,10 +80,10 @@ public class MesaController {
         System.out.println("Mesa não encontrada.");
     }
 
-    public void atribuirClientesAMesa(int idMesa, Reserva reserva, int tempoAtual) {
+    public boolean atribuirClientesAMesa(int idMesa, Reserva reserva, int tempoAtual) {
         if (reserva.isAssociada()) {
             System.out.println("Reserva " + reserva.getNome() + " já está associada a uma mesa.");
-            return;
+            return false;
         }
 
         for (Mesa mesa : mesas) {
@@ -94,14 +94,15 @@ public class MesaController {
                     mesaReservas[mesaReservaCount++] = mesaReserva; // Adicionando a nova reserva ao array
                     reserva.setAssociada(true); // Marcar a reserva como associada
                     System.out.println("Clientes da reserva " + reserva.getNome() + " atribuídos à mesa " + idMesa);
-                    return;
+                    return true;
                 } else {
                     System.out.println("Mesa ocupada ou capacidade insuficiente.");
-                    return;
+                    return false;
                 }
             }
         }
         System.out.println("Mesa não encontrada.");
+        return false;
     }
 
     public Reserva getClienteDaMesa(int idMesa) {
@@ -459,7 +460,6 @@ public class MesaController {
                 }
             }
         }
-        System.out.println("Tempo máximo de preparação dentro do pedido: " + maxTempo);
         return maxTempo;
     }
 
@@ -615,8 +615,7 @@ public class MesaController {
         logsController.criarLog(currentDay, currentHour, logType, logDescription);
     }
 
-    public String associarPedido(Scanner scanner){
-
+    public String associarPedido(Scanner scanner) {
         int tempoAtual = simulacaoDiaController.getUnidadeTempoAtual();
         int unidadesTempoParaPedido = configuracaoController.getConfiguracao().getUnidadesTempoParaPedido();
 
@@ -672,9 +671,43 @@ public class MesaController {
         int currentDay = simulacaoDiaController.getDiaAtual();
         int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
 
+        // Obter o pedido associado à mesa
+        Pedido pedido = pedidoController.getPedidoByMesa(idMesa);
+        if (pedido == null) {
+            return "Erro ao registrar o pedido para a mesa " + idMesa;
+        }
+
+        // Criar a lista de pratos e menus consumidos
+        StringBuilder pratosConsumidos = new StringBuilder();
+        for (Prato prato : pedido.getPratos()) {
+            if (prato != null) {
+                pratosConsumidos.append(prato.getNome()).append(" (Tempo de Preparação: ")
+                        .append(prato.getTempoPreparacao()).append("), ");
+            }
+        }
+
+        // Adicionar pratos dos menus ao log
+        for (Menu menu : pedido.getMenus()) {
+            if (menu != null) {
+                pratosConsumidos.append("Menu ID: ").append(menu.getId()).append(" com pratos: ");
+                for (Prato prato : menu.getPratos()) {
+                    if (prato != null) {
+                        pratosConsumidos.append(prato.getNome()).append(" (Tempo de Preparação: ")
+                                .append(prato.getTempoPreparacao()).append("), ");
+                    }
+                }
+            }
+        }
+
+        // Remover a última vírgula e espaço, se houver
+        if (pratosConsumidos.length() > 0) {
+            pratosConsumidos.setLength(pratosConsumidos.length() - 2);
+        }
+
         // Criação do log
         String logType = "ACTION";
-        String logDescription = String.format("Pedido associado à mesa ID: %d, Reserva: %s (ID da Reserva: %d)", idMesa, reserva.getNome(), reserva.getId());
+        String logDescription = String.format("Pedido associado à mesa ID: %d, Reserva: %s (ID da Reserva: %d). Pratos e Menus: %s",
+                idMesa, reserva.getNome(), reserva.getId(), pratosConsumidos.toString());
 
         logsController.criarLog(currentDay, currentHour, logType, logDescription);
 

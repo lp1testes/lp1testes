@@ -82,7 +82,31 @@ public class LogsController {
         }
         return true;
     }
+    public Logs[] buscarLogsPorDia(int dia) {
+        // Obtém todos os logs atuais
+        Logs[] todosLogs = obterTodosLogs();
 
+        // Primeiro, conta quantos logs correspondem ao dia especificado
+        int count = 0;
+        for (Logs log : todosLogs) {
+            if (log.getDay() == dia) {
+                count++;
+            }
+        }
+
+        // Cria um array com o tamanho apropriado
+        Logs[] logsDia = new Logs[count];
+
+        // Preenche o array com os logs correspondentes
+        int index = 0;
+        for (Logs log : todosLogs) {
+            if (log.getDay() == dia) {
+                logsDia[index++] = log;
+            }
+        }
+
+        return logsDia;
+    }
     public Logs[] obterTodosLogs() {
         Logs[] logsAtuais = new Logs[logCount];
         System.arraycopy(logs, 0, logsAtuais, 0, logCount);
