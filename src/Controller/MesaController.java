@@ -10,27 +10,20 @@ public class MesaController {
     private Mesa[] mesas;
     private MesaDAL mesaDAL;
     private MesaReserva[] mesaReservas;
-    private Pedido[] pedidos;
     private int mesaReservaCount;
-    private int pedidoCount;
     private static final int LIMITE = 100;
     private static MesaController instance;
     private static final ReservaController reservaController = ReservaController.getInstance();
     private static final SimulacaoDiaController simulacaoDiaController = SimulacaoDiaController.getInstance();
     private static final LogsController logsController = LogsController.getInstance();
     private static final ConfiguracaoController configuracaoController = ConfiguracaoController.getInstancia();
+    private static final PedidoController pedidoController = PedidoController.getInstance();
 
-    MesaController() {
-        mesaDAL                     = new MesaDAL();
-        mesas                       = mesaDAL.carregarMesas();
-        this.mesaReservas           = new MesaReserva[LIMITE]; // Tamanho máximo definido em 100
-        this.pedidos                = new Pedido[LIMITE];
-        this.mesaReservaCount       = 0;
-        this.pedidoCount            = 0;
-        //this.simulacaoDiaController = SimulacaoDiaController.getInstance();
-        //this.logsController         = new LogsController();
-        //this.reservaController      = ReservaController.getInstance();
-        //this.configuracaoController = new ConfiguracaoController();
+    private MesaController() {
+        mesaDAL = new MesaDAL();
+        mesas = mesaDAL.carregarMesas();
+        this.mesaReservas = new MesaReserva[LIMITE]; // Tamanho máximo definido em 100
+        this.mesaReservaCount = 0;
     }
 
     public static synchronized MesaController getInstance() {
@@ -44,6 +37,15 @@ public class MesaController {
         return mesas;
     }
 
+    public Mesa getMesaById(int idMesa) {
+        for (Mesa mesa : mesas) {
+            if (mesa != null && mesa.getId() == idMesa) {
+                return mesa;
+            }
+        }
+        return null;
+    }
+
     public void adicionarMesa(Mesa novaMesa) {
         int proximoId = mesaDAL.obterProximoId(mesas);
         novaMesa.setId(proximoId);
@@ -51,7 +53,6 @@ public class MesaController {
         for (int i = 0; i < mesas.length; i++) {
             if (mesas[i] == null) {
                 mesas[i] = novaMesa;
-                mesaDAL.salvarMesas(mesas);
                 return;
             }
         }
@@ -63,7 +64,6 @@ public class MesaController {
             if (mesa != null && mesa.getId() == id) {
                 mesa.setCapacidade(novaCapacidade);
                 mesa.setOcupada(novaOcupacao);
-                mesaDAL.salvarMesas(mesas);
                 return;
             }
         }
@@ -74,7 +74,6 @@ public class MesaController {
         for (int i = 0; i < mesas.length; i++) {
             if (mesas[i] != null && mesas[i].getId() == id) {
                 mesas[i] = null;
-                mesaDAL.salvarMesas(mesas);
                 return;
             }
         }
@@ -91,7 +90,6 @@ public class MesaController {
             if (mesa != null && mesa.getId() == idMesa) {
                 if (!mesa.isOcupada() && reserva.getNumeroPessoas() <= mesa.getCapacidade()) {
                     mesa.setOcupada(true);
-                    mesaDAL.salvarMesas(mesas);
                     MesaReserva mesaReserva = new MesaReserva(idMesa, reserva.getId(), tempoAtual);
                     mesaReservas[mesaReservaCount++] = mesaReserva; // Adicionando a nova reserva ao array
                     reserva.setAssociada(true); // Marcar a reserva como associada
@@ -197,15 +195,14 @@ public class MesaController {
             return;
         }
 
-        // Mover esta mensagem para depois da verificação
         System.out.println("Clientes da reserva " + mesaReserva.getIdReserva() + " estão prontos para fazer o pedido.");
 
-        Pedido pedido = getPedidoByMesa(idMesa);
+        Pedido pedido = pedidoController.getPedidoByMesa(idMesa);
         if (pedido == null) {
             pedido = new Pedido();
             pedido.setMesa(getMesaById(idMesa));
             pedido.setTempoPedido(tempoAtual);
-            pedidos[pedidoCount++] = pedido;
+            pedidoController.adicionarPedido(pedido);
         }
 
         int tempoRestanteDia = configuracao.getUnidadesTempoDia() - (tempoAtual + 1 + configuracao.getUnidadesTempoParaPagamento());
@@ -229,6 +226,30 @@ public class MesaController {
         System.out.printf("Total Custo: %.2f\n", pedido.getTotalCusto());
         System.out.printf("Total Venda: %.2f\n", pedido.getTotalVenda());
         System.out.printf("Lucro: %.2f\n", pedido.getLucro());
+
+        // Imprimir os detalhes do pedido
+        System.out.println("Detalhes do Pedido:");
+        System.out.println("Mesa: " + pedido.getMesa().getId());
+        System.out.println("Tempo do Pedido: " + pedido.getTempoPedido());
+
+        System.out.println("Pratos:");
+        for (Prato prato : pedido.getPratos()) {
+            if (prato != null) {
+                System.out.println("  - " + prato.getNome() + " (Tempo de Preparação: " + prato.getTempoPreparacao() + ", Preço: " + prato.getPrecoVenda() + ")");
+            }
+        }
+
+        System.out.println("Menus:");
+        for (Menu menu : pedido.getMenus()) {
+            if (menu != null) {
+                System.out.println("  - Menu ID: " + menu.getId());
+                for (Prato prato : menu.getPratos()) {
+                    if (prato != null) {
+                        System.out.println("    - " + prato.getNome() + " (Tempo de Preparação: " + prato.getTempoPreparacao() + ", Preço: " + prato.getPrecoVenda() + ")");
+                    }
+                }
+            }
+        }
     }
 
     private boolean listarPratos(Scanner scanner, int idMesa, Pedido pedido, int tempoRestanteDia) {
@@ -312,41 +333,27 @@ public class MesaController {
     }
 
     public void adicionarPratoAoPedido(int idMesa, Prato prato) {
-        Pedido pedido = getPedidoByMesa(idMesa);
+        Pedido pedido = pedidoController.getPedidoByMesa(idMesa);
         if (pedido == null) {
             pedido = new Pedido();
             pedido.setMesa(getMesaById(idMesa));
-            pedidos[pedidoCount++] = pedido;
+            pedidoController.adicionarPedido(pedido);
         }
         pedido.adicionarPrato(prato);
     }
 
     public void adicionarMenuAoPedido(int idMesa, Menu menu) {
-        Pedido pedido = getPedidoByMesa(idMesa);
+        Pedido pedido = pedidoController.getPedidoByMesa(idMesa);
         if (pedido == null) {
             pedido = new Pedido();
             pedido.setMesa(getMesaById(idMesa));
-            pedidos[pedidoCount++] = pedido;
+            pedidoController.adicionarPedido(pedido);
         }
         pedido.adicionarMenu(menu);
     }
 
     public Pedido getPedidoByMesa(int idMesa) {
-        for (int i = 0; i < pedidoCount; i++) {
-            if (pedidos[i] != null && pedidos[i].getMesa().getId() == idMesa) {
-                return pedidos[i];
-            }
-        }
-        return null;
-    }
-
-    private Mesa getMesaById(int idMesa) {
-        for (Mesa mesa : mesas) {
-            if (mesa != null && mesa.getId() == idMesa) {
-                return mesa;
-            }
-        }
-        return null;
+        return pedidoController.getPedidoByMesa(idMesa);
     }
 
     public void listarPedidosAtendidos(int idMesa) {
@@ -386,7 +393,7 @@ public class MesaController {
     }
 
     public void efetuarPagamento(int idMesa, int tempoAtual) {
-        Pedido pedido = getPedidoByMesa(idMesa);
+        Pedido pedido = pedidoController.getPedidoByMesa(idMesa);
         if (pedido == null) {
             System.out.println("Pedido não encontrado para a mesa " + idMesa);
             return;
@@ -416,13 +423,21 @@ public class MesaController {
     }
 
     public boolean podeEfetuarPagamento(int idMesa, int tempoAtual) {
-        Pedido pedido = getPedidoByMesa(idMesa);
+        Pedido pedido = pedidoController.getPedidoByMesa(idMesa);
         if (pedido == null) {
+            System.out.println("Pedido não encontrado para a mesa " + idMesa);
             return false;
         }
 
         int tempoMaximoPreparo = getTempoMaximoPreparo(pedido);
-        return tempoAtual >= pedido.getTempoPedido() + tempoMaximoPreparo;
+        System.out.println("Tempo atual: " + tempoAtual);
+        System.out.println("Tempo do pedido: " + pedido.getTempoPedido());
+        System.out.println("Tempo máximo de preparação: " + tempoMaximoPreparo);
+
+        boolean podeEfetuar = tempoAtual >= pedido.getTempoPedido() + tempoMaximoPreparo;
+        System.out.println("Pode efetuar pagamento: " + podeEfetuar);
+
+        return podeEfetuar;
     }
 
     private int getTempoMaximoPreparo(Pedido pedido) {
@@ -441,6 +456,7 @@ public class MesaController {
                 }
             }
         }
+        System.out.println("Tempo máximo de preparação dentro do pedido: " + maxTempo);
         return maxTempo;
     }
 
@@ -455,6 +471,7 @@ public class MesaController {
 
         return tempoAtual > tempoLimitePagamento;
     }
+
     public boolean tempoReservaUltrapassado(int idMesa, int tempoAtual) {
         MesaReserva mesaReserva = getMesaReservaByIdMesa(idMesa);
         if (mesaReserva == null) {
@@ -491,8 +508,9 @@ public class MesaController {
 
     public int contarPedidosAtendidos() {
         int count = 0;
-        for (int i = 0; i < pedidoCount; i++) {
-            if (pedidos[i] != null && pedidos[i].isPago()) {
+        Pedido[] pedidos = pedidoController.getPedidos();
+        for (Pedido pedido : pedidos) {
+            if (pedido != null && pedido.isPago()) {
                 count++;
             }
         }
@@ -501,8 +519,9 @@ public class MesaController {
 
     public int contarPedidosNaoAtendidos() {
         int count = 0;
-        for (int i = 0; i < pedidoCount; i++) {
-            if (pedidos[i] != null && !pedidos[i].isPago()) {
+        Pedido[] pedidos = pedidoController.getPedidos();
+        for (Pedido pedido : pedidos) {
+            if (pedido != null && !pedido.isPago()) {
                 count++;
             }
         }
@@ -552,41 +571,41 @@ public class MesaController {
 
     public void verificarEstadoMesas(){
 
-            Mesa[] mesas = getMesas();
-            Arrays.sort(mesas, new Comparator<Mesa>() {
-                @Override
-                public int compare(Mesa m1, Mesa m2) {
-                    if (m1 == null && m2 == null) {
-                        return 0;
-                    }
-                    if (m1 == null) {
-                        return 1;
-                    }
-                    if (m2 == null) {
-                        return -1;
-                    }
-                    return Integer.compare(m1.getId(), m2.getId());
+        Mesa[] mesas = getMesas();
+        Arrays.sort(mesas, new Comparator<Mesa>() {
+            @Override
+            public int compare(Mesa m1, Mesa m2) {
+                if (m1 == null && m2 == null) {
+                    return 0;
                 }
-            });
-
-            System.out.println("\n-- Estado das Mesas --");
-
-            for (Mesa mesa : mesas) {
-                if (mesa != null) {
-                    String estado = mesa.isOcupada() ? "Ocupada" : "Livre";
-                    System.out.println("Mesa " + mesa.getId() + ": Capacidade " + mesa.getCapacidade() + " - " + estado);
+                if (m1 == null) {
+                    return 1;
                 }
+                if (m2 == null) {
+                    return -1;
+                }
+                return Integer.compare(m1.getId(), m2.getId());
             }
+        });
 
-            // Obter o dia atual e a unidade de tempo atual da simulação
-            int currentDay = simulacaoDiaController.getDiaAtual();
-            int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+        System.out.println("\n-- Estado das Mesas --");
 
-            // Criação do log
-            String logType = "INFO";
-            String logDescription = "Estado das mesas verificado";
+        for (Mesa mesa : mesas) {
+            if (mesa != null) {
+                String estado = mesa.isOcupada() ? "Ocupada" : "Livre";
+                System.out.println("Mesa " + mesa.getId() + ": Capacidade " + mesa.getCapacidade() + " - " + estado);
+            }
+        }
 
-            logsController.criarLog(currentDay, currentHour, logType, logDescription);
+        // Obter o dia atual e a unidade de tempo atual da simulação
+        int currentDay = simulacaoDiaController.getDiaAtual();
+        int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+        // Criação do log
+        String logType = "INFO";
+        String logDescription = "Estado das mesas verificado";
+
+        logsController.criarLog(currentDay, currentHour, logType, logDescription);
     }
 
     public String associarPedido(Scanner scanner){
@@ -654,6 +673,8 @@ public class MesaController {
 
         return "Pedido associado";
     }
-
+    public void salvarMesas() {
+        mesaDAL.salvarMesas(mesas);
+    }
 
 }

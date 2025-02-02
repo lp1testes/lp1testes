@@ -49,7 +49,6 @@ public class PratoController {
         for (int i = 0; i < pratos.length; i++) {
             if (pratos[i] == null) {
                 pratos[i] = novoPrato;
-                pratoDAL.salvarPratos(pratos);
                 return;
             }
         }
@@ -60,7 +59,6 @@ public class PratoController {
         for (int i = 0; i < pratos.length; i++) {
             if (pratos[i] != null && pratos[i].getId().equals(pratoAtualizado.getId())) {
                 pratos[i] = pratoAtualizado;
-                pratoDAL.salvarPratos(pratos);
                 return;
             }
         }
@@ -71,7 +69,6 @@ public class PratoController {
         for (int i = 0; i < pratos.length; i++) {
             if (pratos[i] != null && pratos[i].getId() == id) {
                 pratos[i] = null;
-                pratoDAL.salvarPratos(pratos);
                 return;
             }
         }
@@ -499,5 +496,9 @@ public class PratoController {
         } else {
             System.out.println("Prato inválido ou não disponível.");
         }
+    }
+    public void salvarPratos() {
+
+        pratoDAL.salvarPratos(pratos);
     }
 }

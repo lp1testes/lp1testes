@@ -34,11 +34,12 @@ public class GerirMenusView {
             System.out.println("7. Editar Prato no Menu");
             System.out.println("8. Remover Prato do Menu");
             System.out.println("9. Adicionar Prato ao Menu");
+            System.out.println("10. Salvar Pratos e Menus");
             System.out.println("0. Voltar ao Menu Principal");
             System.out.print("Escolha uma opção: ");
 
             MenuPrincipalView menuPrincipalView = new MenuPrincipalView();
-            opcao = menuPrincipalView.obterOpcaoValida(0, 9);
+            opcao = menuPrincipalView.obterOpcaoValida(0, 10);
 
             switch (opcao) {
                 case 1:
@@ -67,6 +68,9 @@ public class GerirMenusView {
                     break;
                 case 9:
                     adicionarPratoAoMenu(scanner);
+                    break;
+                case 10:
+                    salvarPratosEMenus(); // Chamada para o método de salvar pratos e menus
                     break;
                 case 0:
                     System.out.println("Voltando ao menu principal...");
@@ -231,5 +235,10 @@ public class GerirMenusView {
         logsController.criarLog(currentDay, currentHour, logType, logDescription);
 
         System.out.println("Prato adicionado com sucesso ao menu!");
+    }
+    private void salvarPratosEMenus() {
+        pratoController.salvarPratos();
+        menuController.salvarMenus();
+        System.out.println("Pratos e menus salvos com sucesso!");
     }
 }

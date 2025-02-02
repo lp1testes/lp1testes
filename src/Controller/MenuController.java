@@ -9,7 +9,8 @@ import java.util.Scanner;
 
 public class MenuController {
     private static MenuController instance;
-    private Menu menu;
+    private Menu[] menus;
+    private Menu menu;  // Variável de instância para o menu atual
     private MenuDAL menuDAL;
     private static final PratoController pratoController = PratoController.getInstance();
     private static final MesaController mesaController = MesaController.getInstance();
@@ -17,13 +18,8 @@ public class MenuController {
     private static final LogsController logsController = LogsController.getInstance();
 
     public MenuController() {
-        menu                    = new Menu();
-        //pratoController         = new PratoController();
-        menuDAL                 = new MenuDAL();
-        //mesaController          = new MesaController();
-        //simulacaoDiaController  = new SimulacaoDiaController();
-        //logsController          = new LogsController();
-        //menu = menuDAL.carregarMenus();
+        menuDAL = new MenuDAL();
+        menus = menuDAL.carregarTodosMenus();
     }
 
     public static synchronized MenuController getInstance() {
@@ -39,7 +35,6 @@ public class MenuController {
 
     public void atualizarMenu(Menu novoMenu) {
         menu = novoMenu;
-        //menuDAL.salvarMenus(menu);
     }
 
     public void criarMenu(String entradaId, String pratoPrincipalId, String sobremesaId) {
@@ -66,7 +61,6 @@ public class MenuController {
             }
         }
 
-        Menu[] menus = menuDAL.carregarTodosMenus();
         int proximoId = obterProximoId(menus);
         menu.setId(proximoId);
 
@@ -76,7 +70,6 @@ public class MenuController {
                 break;
             }
         }
-        menuDAL.salvarMenus(menus);
     }
 
     private int obterProximoId(Menu[] menus) {
@@ -90,11 +83,10 @@ public class MenuController {
     }
 
     public Menu[] obterTodosMenus() {
-        return menuDAL.carregarTodosMenus();
+        return menus;
     }
 
     public String listarMenus() {
-        Menu[] menus = obterTodosMenus();
         StringBuilder sb = new StringBuilder();
         sb.append("\n-- Lista de Menus --\n");
         for (Menu menu : menus) {
@@ -118,7 +110,6 @@ public class MenuController {
     }
 
     public void editarPratoNoMenu(int menuId, int pratoId, String novoPratoId) {
-        Menu[] menus = obterTodosMenus();
         for (Menu menu : menus) {
             if (menu != null && menu.getId() == menuId) {
                 Prato[] pratos = menu.getPratos();
@@ -127,7 +118,6 @@ public class MenuController {
                         Prato novoPrato = pratoController.getPratoById(Integer.parseInt(novoPratoId));
                         if (novoPrato != null && novoPrato.getCategoria().equals(pratos[i].getCategoria())) {
                             pratos[i] = novoPrato;
-                            menuDAL.salvarMenus(menus);
                             return;
                         }
                     }
@@ -137,14 +127,12 @@ public class MenuController {
     }
 
     public void removerPratoDoMenu(int menuId, int pratoId) {
-        Menu[] menus = obterTodosMenus();
         for (Menu menu : menus) {
             if (menu != null && menu.getId() == menuId) {
                 Prato[] pratos = menu.getPratos();
                 for (int i = 0; i < pratos.length; i++) {
                     if (pratos[i] != null && pratos[i].getId() == pratoId) {
                         pratos[i] = null;
-                        menuDAL.salvarMenus(menus);
                         return;
                     }
                 }
@@ -153,21 +141,22 @@ public class MenuController {
     }
 
     public void adicionarPratoAoMenu(int menuId, String pratoId) {
-        Menu[] menus = obterTodosMenus();
         for (Menu menu : menus) {
             if (menu != null && menu.getId() == menuId) {
                 Prato novoPrato = pratoController.getPratoById(Integer.parseInt(pratoId));
                 if (novoPrato != null) {
                     menu.adicionarPrato(novoPrato);
-                    menuDAL.salvarMenus(menus);
                     return;
                 }
             }
         }
     }
 
+    public void salvarMenus() {
+        menuDAL.salvarMenus(menus);
+    }
+
     public Menu getMenuById(int id) {
-        Menu[] menus = obterTodosMenus();
         for (Menu menu : menus) {
             if (menu != null && menu.getId() == id) {
                 return menu;
@@ -176,10 +165,7 @@ public class MenuController {
         return null;
     }
 
-    public void listarMenus(Scanner scanner, int idMesa, int clienteIndex){
-
-        Menu[] menus = obterTodosMenus();
-
+    public void listarMenus(Scanner scanner, int idMesa, int clienteIndex) {
         if (menus.length == 0) {
             System.out.println("Não há menus disponíveis no momento.");
             return;

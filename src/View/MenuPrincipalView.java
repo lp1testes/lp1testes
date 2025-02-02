@@ -21,8 +21,8 @@ public class MenuPrincipalView {
         this.simulacaoDiaController = SimulacaoDiaController.getInstance();
         this.reservaController = ReservaController.getInstance();
         this.mesaController = MesaController.getInstance();
-        this.pratoController = new PratoController();
-        this.menuController = new MenuController();
+        this.pratoController = PratoController.getInstance();
+        this.menuController = MenuController.getInstance();
         this.logsController = LogsController.getInstance(); // Define o tamanho máximo de logs
         this.desempenhoFinanceiroController = new DesempenhoFinanceiroController(logsController);
 
@@ -74,7 +74,7 @@ public class MenuPrincipalView {
             System.out.println("7. Gestão Financeira");
             System.out.println("8. Estatísticas Gerais");
             System.out.println("9. Configurações");
-            System.out.println("10. Salvar");
+            System.out.println("10. Salvar Tudo");
             System.out.println("0. Sair");
             System.out.print("Escolha uma opção: ");
 
@@ -113,6 +113,7 @@ public class MenuPrincipalView {
                     }
                     break;
                 case 10:
+                    salvarTudo();
                     break;
                 case 0:
                     System.out.println("Saindo do sistema...");
@@ -145,5 +146,13 @@ public class MenuPrincipalView {
                 System.out.println("Entrada inválida! Por favor, insira um número.");
             }
         }
+    }
+
+    private void salvarTudo() {
+        reservaController.salvarReservas();
+        mesaController.salvarMesas();
+        pratoController.salvarPratos();
+        menuController.salvarMenus();
+        System.out.println("Todos os dados foram salvos com sucesso!");
     }
 }

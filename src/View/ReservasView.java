@@ -31,11 +31,12 @@ public class ReservasView {
             System.out.println("2. Adicionar Reserva");
             System.out.println("3. Remover Reserva");
             System.out.println("4. Editar Reserva");
+            System.out.println("5. Salvar Reservas"); // Nova opção para salvar reservas
             System.out.println("0. Voltar ao Menu Principal");
             System.out.print("Escolha uma opção: ");
 
             MenuPrincipalView menuPrincipalView = new MenuPrincipalView();
-            opcao = menuPrincipalView.obterOpcaoValida(0, 4);
+            opcao = menuPrincipalView.obterOpcaoValida(0, 5);
 
             switch (opcao) {
                 case 1:
@@ -49,6 +50,9 @@ public class ReservasView {
                     break;
                 case 4:
                     editarReserva(scanner);
+                    break;
+                case 5:
+                    salvarReservas();
                     break;
                 case 0:
                     System.out.println("Voltando ao menu principal...");
@@ -189,5 +193,19 @@ public class ReservasView {
         logsController.criarLog(currentDay, currentHour, logType, logDescription);
 
         System.out.println("Reserva editada com sucesso!");
+    }
+
+    private void salvarReservas() {
+        reservaController.salvarReservas();
+
+        // Obter o dia atual e a unidade de tempo atual da simulação
+        int currentDay = simulacaoDiaController.getDiaAtual();
+        int currentHour = simulacaoDiaController.getUnidadeTempoAtual();
+
+        // Criação do log
+        String logType = "ACTION";
+        String logDescription = "Reservas salvas manualmente";
+
+        logsController.criarLog(currentDay, currentHour, logType, logDescription);
     }
 }

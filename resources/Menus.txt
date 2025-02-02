@@ -1,3 +1,11 @@
 1;1;Atum com Natas;entrada;10.0;12.0;2;true
 1;4;Bife;prato principal;12.0;15.0;3;true
 
+2;1;Atum com Natas;entrada;10.0;12.0;2;true
+2;2;Bacalhau;prato principal;20.0;25.0;3;true
+2;3;Natas do ceu;sobremesa;4.0;7.0;1;true
+
+3;3;Natas do ceu;sobremesa;4.0;7.0;1;true
+3;2;Bacalhau;prato principal;20.0;25.0;3;true
+3;9;aa;sobremesa;30.0;40.0;9;true
+

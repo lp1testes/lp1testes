@@ -6,3 +6,20 @@
 0;0;2025-02-02 11:38:46;INFO;Listagem de menus exibida
 0;0;2025-02-02 11:39:03;INFO;Listagem de pratos exibida
 0;0;2025-02-02 11:39:20;INFO;Pedidos atendidos listados para a mesa ID: 1
+0;0;2025-02-02 13:55:48;INFO;Estado das mesas verificado
+0;0;2025-02-02 14:11:50;INFO;Estado das mesas verificado
+0;0;2025-02-02 14:20:20;INFO;Estado das mesas verificado
+0;0;2025-02-02 15:00:49;ACTION;Mesa registrada: Capacidade 10
+0;0;2025-02-02 15:01:57;ACTION;Prato criado: pratosalvar, Categoria: entrada, Custo: 10,00, Venda: 20,00, Tempo: 3, Disponível: true
+0;0;2025-02-02 15:02:16;ACTION;Menu criado com entrada ID: 12, prato principal ID: 2, sobremesa ID: 9
+0;0;2025-02-02 15:11:08;ACTION;Menu criado com entrada ID: 1, prato principal ID: 2, sobremesa ID: 3
+0;0;2025-02-02 15:16:24;ACTION;Menu criado com entrada ID: 1, prato principal ID: 2, sobremesa ID: 3
+0;0;2025-02-02 15:17:00;INFO;Listagem de menus exibida
+0;0;2025-02-02 15:17:42;INFO;Listagem de menus exibida
+0;0;2025-02-02 15:17:57;ACTION;Menu criado com entrada ID: 3, prato principal ID: 2, sobremesa ID: 9
+0;0;2025-02-02 15:17:59;INFO;Listagem de menus exibida
+0;0;2025-02-02 15:18:21;INFO;Listagem de menus exibida
+0;0;2025-02-02 15:18:33;INFO;Listagem de menus exibida
+0;0;2025-02-02 15:18:43;INFO;Listagem de menus exibida
+0;0;2025-02-02 15:19:10;ACTION;Prato editado no menu ID: 1, prato antigo ID: 2, novo prato ID: 4
+0;0;2025-02-02 15:24:51;INFO;Listagem de reservas exibida

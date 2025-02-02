@@ -14,7 +14,7 @@ public class ReservaController {
     private Reserva[] reservas;
 
     private static ReservaController instance;
-    private static ReservaDAL reservaDAL ;
+    private static ReservaDAL reservaDAL;
     private Configuracao configuracao = Configuracao.getInstancia();
     private static final MesaController mesaController = MesaController.getInstance();
     private static final ConfiguracaoController configuracaoController = ConfiguracaoController.getInstancia();
@@ -22,14 +22,10 @@ public class ReservaController {
     private static final LogsController logsController = LogsController.getInstance();
 
     ReservaController() {
-        this.reservaDAL             = new ReservaDAL();
-        this.reservas               = reservaDAL.carregarReservas();
-        //this.configuracaoController = ConfiguracaoController.getInstancia();
-        //this.simulacaoDiaController = SimulacaoDiaController.getInstance();
-        //this.mesaController         = MesaController.getInstance();
-        //this.logsController         = LogsController.getInstance();
+        this.reservaDAL = new ReservaDAL();
+        this.reservas = reservaDAL.carregarReservas();
     }
-    // Método para obter a instância Singleton
+
     public static synchronized ReservaController getInstance() {
         if (instance == null) {
             instance = new ReservaController();
@@ -74,7 +70,11 @@ public class ReservaController {
 
     public void atualizarReservas(Reserva[] novasReservas) {
         reservas = novasReservas;
+    }
+
+    public void salvarReservas() {
         reservaDAL.salvarReservas(reservas);
+        System.out.println("Reservas salvas com sucesso!");
     }
 
     public String verificarChegadaReservas(int tempoAtual) {
@@ -118,6 +118,7 @@ public class ReservaController {
         }
         return Arrays.copyOf(reservasDisponiveis, index);
     }
+
     public void criarReserva(String nome, int numeroPessoas, int tempoChegada) {
         int proximoId = reservaDAL.obterProximoId(reservas);
         Reserva novaReserva = new Reserva(proximoId, nome, numeroPessoas, tempoChegada);
@@ -125,7 +126,6 @@ public class ReservaController {
         for (int i = 0; i < reservas.length; i++) {
             if (reservas[i] == null) {
                 reservas[i] = novaReserva;
-                reservaDAL.salvarReservas(reservas);
                 System.out.println("Reserva adicionada com sucesso!");
                 return;
             }
@@ -164,7 +164,6 @@ public class ReservaController {
         if (reserva != null) {
             reserva.setNome(novoNome);
             reserva.setNumeroPessoas(novoNumeroPessoas);
-            reservaDAL.salvarReservas(reservas);
             System.out.println("Reserva editada com sucesso!");
         } else {
             System.out.println("Reserva não encontrada.");
@@ -175,7 +174,6 @@ public class ReservaController {
         for (int i = 0; i < reservas.length; i++) {
             if (reservas[i] != null && reservas[i].getId() == id) {
                 reservas[i] = null;
-                reservaDAL.salvarReservas(reservas);
                 System.out.println("Reserva removida com sucesso!");
                 return;
             }
@@ -183,7 +181,7 @@ public class ReservaController {
         System.out.println("Reserva não encontrada.");
     }
 
-    public String atribuirClientesMesas(Scanner scanner){
+    public String atribuirClientesMesas(Scanner scanner) {
 
         int tempoAtual = simulacaoDiaController.getUnidadeTempoAtual();
         int currentDay = simulacaoDiaController.getDiaAtual();
@@ -249,7 +247,7 @@ public class ReservaController {
         }
     }
 
-    public void verClienteDaMesa(Scanner scanner){
+    public void verClienteDaMesa(Scanner scanner) {
 
         int idMesa = -1;
 

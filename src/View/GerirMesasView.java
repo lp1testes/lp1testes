@@ -32,11 +32,12 @@ public class GerirMesasView {
             System.out.println("4. Ver Cliente da Mesa");
             System.out.println("5. Editar Mesa");
             System.out.println("6. Remover Mesa");
+            System.out.println("7. Salvar Mesas"); // Nova opção adicionada
             System.out.println("0. Voltar ao Menu Principal");
             System.out.print("Escolha uma opção: ");
 
             MenuPrincipalView menuPrincipalView = new MenuPrincipalView();
-            opcao = menuPrincipalView.obterOpcaoValida(0, 6);
+            opcao = menuPrincipalView.obterOpcaoValida(0, 7);
 
             switch (opcao) {
                 case 1:
@@ -56,6 +57,9 @@ public class GerirMesasView {
                     break;
                 case 6:
                     removerMesa(scanner);
+                    break;
+                case 7:
+                    salvarMesas(); // Chamada para o método de salvar mesas
                     break;
                 case 0:
                     System.out.println("Voltando ao menu principal...");
@@ -177,5 +181,9 @@ public class GerirMesasView {
         logsController.criarLog(currentDay, currentHour, logType, logDescription);
 
         System.out.println("Mesa removida com sucesso!");
+    }
+    private void salvarMesas() {
+        mesaController.salvarMesas();
+        System.out.println("Mesas salvas com sucesso!");
     }
 }

@@ -17,3 +17,4 @@
 17;adasdasd;sobremesa;10.0;20.0;3;true
 18;pratoteste;sobremesa;30.0;50.0;1;true
 19;pratoaaaa;entrada;10.0;20.0;1;true
+20;pratosalvar;entrada;10.0;20.0;3;true
